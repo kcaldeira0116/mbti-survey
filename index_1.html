@@ -1,0 +1,1324 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>パーソナリティタイプ診断 (MBTI) | Salesforce Japan – Field Marketing & Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand: #00B3FF;
+    --brand-dark: #0091cf;
+    --brand-darker: #00547a;
+    --brand-soft: #e6f7ff;
+    --ink: #0a2540;
+    --ink-soft: #324a6d;
+    --muted: #6b7c93;
+    --line: #e3eaf2;
+    --bg: #f6f9fc;
+    --white: #ffffff;
+    --success: #00d97e;
+    --shadow-sm: 0 2px 8px rgba(10, 37, 64, 0.06);
+    --shadow-md: 0 8px 24px rgba(10, 37, 64, 0.08);
+    --shadow-lg: 0 16px 48px rgba(10, 37, 64, 0.12);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* ---------- HEADER ---------- */
+  header {
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+    padding: 18px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .brand-logo {
+    width: 38px; height: 38px;
+    background: var(--brand);
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    color: white;
+    font-weight: 800;
+    font-family: 'Manrope', sans-serif;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(0, 179, 255, 0.35);
+  }
+  .brand-text {
+    line-height: 1.2;
+  }
+  .brand-text .b1 {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--ink);
+  }
+  .brand-text .b2 {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .header-tag {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 6px 12px;
+    background: var(--brand-soft);
+    border-radius: 999px;
+    color: var(--brand-darker);
+    font-weight: 500;
+  }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    max-width: 1100px;
+    margin: 64px auto 48px;
+    padding: 0 24px;
+    text-align: center;
+  }
+  .hero-eyebrow {
+    display: inline-block;
+    background: white;
+    border: 1px solid var(--line);
+    color: var(--brand-darker);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 999px;
+    margin-bottom: 24px;
+    letter-spacing: 0.02em;
+  }
+  .hero h1 {
+    font-family: 'Manrope', 'Noto Sans JP', sans-serif;
+    font-size: clamp(34px, 5vw, 56px);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 .accent {
+    background: linear-gradient(135deg, var(--brand) 0%, #0091cf 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero p {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 640px;
+    margin: 0 auto 32px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 28px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+    color: var(--muted);
+    font-size: 14px;
+  }
+  .hero-meta span {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .hero-meta .dot {
+    width: 6px; height: 6px;
+    background: var(--brand);
+    border-radius: 50%;
+  }
+  .cta-button {
+    display: inline-block;
+    background: var(--brand);
+    color: white;
+    border: none;
+    padding: 16px 38px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 8px 20px rgba(0, 179, 255, 0.3);
+    letter-spacing: 0.02em;
+  }
+  .cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 179, 255, 0.45);
+    background: var(--brand-dark);
+  }
+
+  /* ---------- DIMENSIONS ---------- */
+  .dimensions {
+    max-width: 1100px;
+    margin: 64px auto;
+    padding: 0 24px;
+  }
+  .section-label {
+    text-align: center;
+    color: var(--brand-darker);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'Manrope', 'Noto Sans JP', sans-serif;
+    font-size: clamp(26px, 3.5vw, 36px);
+    font-weight: 800;
+    text-align: center;
+    color: var(--ink);
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+  }
+  .section-sub {
+    text-align: center;
+    color: var(--muted);
+    margin-bottom: 40px;
+    font-size: 15px;
+  }
+  .dim-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+  }
+  .dim-card {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: all 0.2s ease;
+  }
+  .dim-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--brand);
+  }
+  .dim-letters {
+    font-family: 'Manrope', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--brand);
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+  }
+  .dim-label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 8px;
+  }
+  .dim-desc {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* ---------- SURVEY ---------- */
+  .survey-section {
+    max-width: 760px;
+    margin: 80px auto;
+    padding: 0 24px;
+    display: none;
+  }
+  .survey-card {
+    background: white;
+    border-radius: 20px;
+    padding: 48px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--line);
+  }
+  .progress-wrap {
+    margin-bottom: 36px;
+  }
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .progress-info .step-count {
+    color: var(--brand-darker);
+  }
+  .progress-bar {
+    height: 6px;
+    background: var(--line);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--brand) 0%, var(--brand-dark) 100%);
+    width: 0%;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 999px;
+  }
+  .question {
+    margin-bottom: 28px;
+  }
+  .q-tag {
+    display: inline-block;
+    background: var(--brand-soft);
+    color: var(--brand-darker);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+    letter-spacing: 0.05em;
+  }
+  .q-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 28px;
+  }
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .option {
+    display: block;
+    position: relative;
+    background: white;
+    border: 2px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 18px 22px 18px 56px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    font-size: 15px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .option:hover {
+    border-color: var(--brand);
+    background: var(--brand-soft);
+    color: var(--ink);
+  }
+  .option input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .option .radio {
+    position: absolute;
+    left: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cdd6e0;
+    border-radius: 50%;
+    transition: all 0.18s ease;
+  }
+  .option .radio::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 10px; height: 10px;
+    background: var(--brand);
+    border-radius: 50%;
+    transition: transform 0.18s ease;
+  }
+  .option input:checked ~ .radio {
+    border-color: var(--brand);
+  }
+  .option input:checked ~ .radio::after {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .option:has(input:checked) {
+    border-color: var(--brand);
+    background: var(--brand-soft);
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .controls {
+    margin-top: 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+  .btn {
+    padding: 14px 30px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.18s ease;
+  }
+  .btn-secondary {
+    background: white;
+    color: var(--ink-soft);
+    border: 1.5px solid var(--line);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    border-color: var(--ink-soft);
+    color: var(--ink);
+  }
+  .btn-secondary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .btn-primary {
+    background: var(--brand);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 179, 255, 0.3);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--brand-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 179, 255, 0.4);
+  }
+  .btn-primary:disabled {
+    background: #cdd6e0;
+    color: white;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* ---------- RESULTS ---------- */
+  .results-section {
+    max-width: 880px;
+    margin: 60px auto;
+    padding: 0 24px;
+    display: none;
+  }
+  .result-hero {
+    background: linear-gradient(135deg, var(--brand) 0%, #0091cf 100%);
+    border-radius: 20px;
+    padding: 48px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 20px 48px rgba(0, 179, 255, 0.3);
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .result-eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.85;
+    margin-bottom: 12px;
+  }
+  .result-type {
+    font-family: 'Manrope', sans-serif;
+    font-size: clamp(64px, 12vw, 96px);
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .result-nickname {
+    font-size: clamp(22px, 3.5vw, 30px);
+    font-weight: 700;
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .result-tagline {
+    font-size: 16px;
+    opacity: 0.92;
+    max-width: 520px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .axis-bars {
+    background: white;
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--line);
+  }
+  .axis-bars h3 {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 24px;
+    color: var(--ink);
+  }
+  .axis {
+    margin-bottom: 22px;
+  }
+  .axis:last-child { margin-bottom: 0; }
+  .axis-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+  .axis-labels .left.active,
+  .axis-labels .right.active {
+    color: var(--brand-darker);
+  }
+  .axis-labels .left:not(.active),
+  .axis-labels .right:not(.active) {
+    color: var(--muted);
+  }
+  .axis-track {
+    height: 8px;
+    background: var(--line);
+    border-radius: 999px;
+    position: relative;
+    overflow: hidden;
+  }
+  .axis-fill {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: var(--brand);
+    border-radius: 999px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .axis-fill.left-side { left: 0; }
+  .axis-fill.right-side { right: 0; }
+
+  .insight-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin-bottom: 24px;
+  }
+  .insight-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 28px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+  }
+  .insight-card h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .insight-card .icon-box {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    background: var(--brand-soft);
+    color: var(--brand-darker);
+    font-weight: 800;
+    font-size: 14px;
+    font-family: 'Manrope', sans-serif;
+  }
+  .insight-card ul {
+    list-style: none;
+    padding: 0;
+  }
+  .insight-card li {
+    padding: 8px 0 8px 22px;
+    position: relative;
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    border-bottom: 1px dashed var(--line);
+  }
+  .insight-card li:last-child { border-bottom: none; }
+  .insight-card li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 16px;
+    width: 8px; height: 8px;
+    background: var(--brand);
+    border-radius: 50%;
+  }
+  .insight-card.weakness li::before {
+    background: #ffb84d;
+  }
+
+  .careers-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 32px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
+  }
+  .careers-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .careers-card .icon-box {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--brand-soft);
+    color: var(--brand-darker);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-family: 'Manrope', sans-serif;
+  }
+  .career-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .career-tag {
+    background: var(--brand-soft);
+    color: var(--brand-darker);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1px solid #b3e5ff;
+  }
+
+  .description-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 32px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
+  }
+  .description-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 14px;
+  }
+  .description-card p {
+    color: var(--ink-soft);
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  .result-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 32px;
+  }
+
+  .disclaimer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 32px;
+    padding: 16px;
+    background: white;
+    border-radius: var(--radius-sm);
+    border: 1px dashed var(--line);
+  }
+
+  /* ---------- FOOTER ---------- */
+  footer {
+    margin-top: 80px;
+    padding: 32px 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    border-top: 1px solid var(--line);
+    background: white;
+  }
+
+  /* ---------- ANIMATIONS ---------- */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-in {
+    animation: fadeUp 0.4s ease-out;
+  }
+
+  /* ---------- PRINT ---------- */
+  @media print {
+    @page {
+      size: A4;
+      margin: 15mm;
+    }
+    body {
+      background: white !important;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    header, footer, .controls, .result-actions, .hero, .dimensions, .survey-section {
+      display: none !important;
+    }
+    .results-section {
+      display: block !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      max-width: 100% !important;
+    }
+    .result-hero {
+      background: linear-gradient(135deg, #00B3FF 0%, #0091cf 100%) !important;
+      color: white !important;
+      box-shadow: none !important;
+      page-break-inside: avoid;
+    }
+    .axis-bars, .description-card, .insight-card, .careers-card {
+      box-shadow: none !important;
+      border: 1px solid #e3eaf2 !important;
+      page-break-inside: avoid;
+    }
+    .career-tag {
+      background: #e6f7ff !important;
+      color: #00547a !important;
+      border: 1px solid #b3e5ff !important;
+    }
+    .insight-card li::before {
+      background: #00B3FF !important;
+    }
+    .insight-card.weakness li::before {
+      background: #ffb84d !important;
+    }
+    .disclaimer {
+      page-break-inside: avoid;
+    }
+  }
+
+  /* ---------- RESPONSIVE ---------- */
+  @media (max-width: 768px) {
+    .header-tag { display: none; }
+    .survey-card { padding: 28px 22px; }
+    .dim-grid { grid-template-columns: repeat(2, 1fr); }
+    .insight-grid { grid-template-columns: 1fr; }
+    .result-hero { padding: 36px 24px; }
+    .careers-card, .description-card, .axis-bars { padding: 24px; }
+    .controls { flex-direction: row; }
+    .btn { padding: 12px 22px; font-size: 14px; }
+    .q-text { font-size: 17px; }
+    .option { font-size: 14px; padding: 16px 18px 16px 50px; }
+    .hero { margin: 40px auto 32px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-logo">S</div>
+      <div class="brand-text">
+        <div class="b1">Salesforce Japan</div>
+        <div class="b2">Field Marketing &amp; Operations</div>
+      </div>
+    </div>
+    <div class="header-tag">パーソナリティ診断</div>
+  </div>
+</header>
+
+<!-- ===== INTRO ===== -->
+<section class="hero" id="intro">
+  <div class="hero-eyebrow">For Team Members</div>
+  <h1>あなたの<span class="accent">仕事のスタイル</span>を、<br>16タイプから見つけよう。</h1>
+  <p>MBTIをベースにした16タイプ診断で、自分の思考・行動パターンを可視化。チーム内のコラボレーションや、強みを活かしたキャリア形成のヒントに。</p>
+  <div class="hero-meta">
+    <span><span class="dot"></span>所要時間 約3分</span>
+    <span><span class="dot"></span>全16問</span>
+    <span><span class="dot"></span>匿名・登録不要</span>
+  </div>
+  <button class="cta-button" onclick="startSurvey()">診断を開始する →</button>
+</section>
+
+<section class="dimensions">
+  <div class="section-label">4つの軸</div>
+  <h2 class="section-title">4つの軸から、性格傾向を可視化</h2>
+  <p class="section-sub">MBTIは、人の思考や行動パターンを4つの対照的な軸で捉えるフレームワークです。</p>
+  <div class="dim-grid">
+    <div class="dim-card">
+      <div class="dim-letters">E / I</div>
+      <div class="dim-label">外向 / 内向</div>
+      <div class="dim-desc">エネルギーをどこから得るか — 人との交流か、内省か</div>
+    </div>
+    <div class="dim-card">
+      <div class="dim-letters">S / N</div>
+      <div class="dim-label">感覚 / 直観</div>
+      <div class="dim-desc">情報を捉えるとき、事実重視か、可能性重視か</div>
+    </div>
+    <div class="dim-card">
+      <div class="dim-letters">T / F</div>
+      <div class="dim-label">思考 / 感情</div>
+      <div class="dim-desc">意思決定の軸が、論理か、人や価値観か</div>
+    </div>
+    <div class="dim-card">
+      <div class="dim-letters">J / P</div>
+      <div class="dim-label">判断 / 知覚</div>
+      <div class="dim-desc">物事の進め方が、計画的か、柔軟か</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SURVEY ===== -->
+<section class="survey-section" id="survey">
+  <div class="survey-card">
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span class="step-count" id="stepCount">Q 1 / 16</span>
+        <span id="progressText">0%</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+    <div id="questionContainer"></div>
+    <div class="controls">
+      <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()" disabled>← 戻る</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled>次へ →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== RESULTS ===== -->
+<section class="results-section" id="results">
+  <div class="result-hero">
+    <div class="result-eyebrow">あなたのパーソナリティタイプ</div>
+    <div class="result-type" id="resultType">----</div>
+    <div class="result-nickname" id="resultNickname">—</div>
+    <div class="result-tagline" id="resultTagline">—</div>
+  </div>
+
+  <div class="axis-bars">
+    <h3>4つの軸の傾向スコア</h3>
+    <div id="axisBars"></div>
+  </div>
+
+  <div class="description-card">
+    <h4>このタイプについて</h4>
+    <p id="resultDescription">—</p>
+  </div>
+
+  <div class="insight-grid">
+    <div class="insight-card">
+      <h4><span class="icon-box">+</span> 強み</h4>
+      <ul id="strengthList"></ul>
+    </div>
+    <div class="insight-card weakness">
+      <h4><span class="icon-box">!</span> 注意したい傾向</h4>
+      <ul id="weaknessList"></ul>
+    </div>
+  </div>
+
+  <div class="careers-card">
+    <h4><span class="icon-box">★</span> 強みが活きる仕事・役割</h4>
+    <div class="career-tags" id="careerTags"></div>
+  </div>
+
+  <div class="result-actions">
+    <button class="btn btn-secondary" id="restartBtn">もう一度診断する</button>
+    <button class="btn btn-primary" id="printBtn">結果を印刷 / PDFで保存</button>
+  </div>
+
+  <div class="disclaimer">
+    ※ 本診断はMBTIの考え方をベースにした簡易的なセルフチェックです。公式のMBTI®アセスメントとは異なり、自己理解とチーム内対話のきっかけとしてご活用ください。
+  </div>
+</section>
+
+<footer>
+  © 2026 Salesforce Japan – Field Marketing &amp; Operations. For internal use.
+</footer>
+
+<script>
+// ========== QUESTIONS ==========
+// Each question: 2 options. axis: which dimension. value: which side it scores for.
+const questions = [
+  // ----- E / I (外向 / 内向) -----
+  {
+    axis: 'EI', tag: 'エネルギー',
+    q: '週末の過ごし方として、より自然に感じるのは？',
+    options: [
+      { text: '友人や仲間と集まって、外出やイベントを楽しむ', value: 'E' },
+      { text: '一人または少人数で、家で静かに過ごす', value: 'I' }
+    ]
+  },
+  {
+    axis: 'EI', tag: 'コミュニケーション',
+    q: '会議や打ち合わせで、あなたは…',
+    options: [
+      { text: '話しながら考えを整理し、その場で発言することが多い', value: 'E' },
+      { text: '一度頭の中で考えてから、要点を絞って発言する', value: 'I' }
+    ]
+  },
+  {
+    axis: 'EI', tag: '人との関わり',
+    q: '新しいプロジェクトのチームに加わったとき…',
+    options: [
+      { text: 'まずは多くのメンバーと話して、関係を広く築く', value: 'E' },
+      { text: '少人数とじっくり関係を深めて、信頼を作る', value: 'I' }
+    ]
+  },
+  {
+    axis: 'EI', tag: 'エネルギー回復',
+    q: '忙しい一日が終わったあと、回復のために選ぶのは？',
+    options: [
+      { text: '同僚や友人と食事や会話をして、リフレッシュする', value: 'E' },
+      { text: '一人の時間を作り、静かに過ごしてリセットする', value: 'I' }
+    ]
+  },
+
+  // ----- S / N (感覚 / 直観) -----
+  {
+    axis: 'SN', tag: '情報の捉え方',
+    q: '物事を理解するとき、あなたが大切にするのは？',
+    options: [
+      { text: '具体的な事実・データ・実例', value: 'S' },
+      { text: '全体像・パターン・将来の可能性', value: 'N' }
+    ]
+  },
+  {
+    axis: 'SN', tag: '学び方',
+    q: '新しいスキルを学ぶときに好むのは？',
+    options: [
+      { text: '手順を踏んで、実例から少しずつ習得する', value: 'S' },
+      { text: '概念や全体構造から入り、自分なりに応用する', value: 'N' }
+    ]
+  },
+  {
+    axis: 'SN', tag: '会話の傾向',
+    q: '会話の中で、あなたがよく語るのは？',
+    options: [
+      { text: '実際に起きた出来事や、具体的な体験談', value: 'S' },
+      { text: 'アイデアや将来の構想、「もし～だったら」の話', value: 'N' }
+    ]
+  },
+  {
+    axis: 'SN', tag: '問題解決',
+    q: '問題に直面したとき、最初に取る行動は？',
+    options: [
+      { text: '過去の事例や実績を調べ、確実な方法を選ぶ', value: 'S' },
+      { text: '新しい切り口や、まだ試されていない方法を探す', value: 'N' }
+    ]
+  },
+
+  // ----- T / F (思考 / 感情) -----
+  {
+    axis: 'TF', tag: '意思決定',
+    q: '重要な決断を下すとき、優先するのは？',
+    options: [
+      { text: '客観的な事実と論理的な分析', value: 'T' },
+      { text: '関係者の気持ちと、価値観への影響', value: 'F' }
+    ]
+  },
+  {
+    axis: 'TF', tag: 'フィードバック',
+    q: '同僚にフィードバックを伝えるとき、より自然なのは？',
+    options: [
+      { text: '改善点をストレートに、率直に伝える', value: 'T' },
+      { text: '相手の気持ちに配慮し、ポジティブな点も含めて伝える', value: 'F' }
+    ]
+  },
+  {
+    axis: 'TF', tag: '評価軸',
+    q: 'チームメンバーを評価するときに重視するのは？',
+    options: [
+      { text: '成果・スキル・公平な基準', value: 'T' },
+      { text: '努力・チームへの貢献・人柄', value: 'F' }
+    ]
+  },
+  {
+    axis: 'TF', tag: '対立への対応',
+    q: '意見の対立が起きたとき、あなたは…',
+    options: [
+      { text: '論点を整理し、最も合理的な結論を導こうとする', value: 'T' },
+      { text: '関係性を保ちながら、全員が納得できる落としどころを探す', value: 'F' }
+    ]
+  },
+
+  // ----- J / P (判断 / 知覚) -----
+  {
+    axis: 'JP', tag: '仕事の進め方',
+    q: 'プロジェクトを進めるときに自然なスタイルは？',
+    options: [
+      { text: '事前にスケジュールを立て、計画通りに進める', value: 'J' },
+      { text: '状況に応じて柔軟に判断し、必要に応じて変える', value: 'P' }
+    ]
+  },
+  {
+    axis: 'JP', tag: 'デスク・予定',
+    q: 'あなたのデスクやカレンダーは？',
+    options: [
+      { text: '整理されていて、予定もきちんと管理されている', value: 'J' },
+      { text: 'やや雑然としていて、予定もその場で柔軟に動く', value: 'P' }
+    ]
+  },
+  {
+    axis: 'JP', tag: '締切',
+    q: '締切のあるタスクに対しては？',
+    options: [
+      { text: '早めに着手し、余裕を持って終わらせる', value: 'J' },
+      { text: 'ギリギリの集中力で一気に仕上げるのが得意', value: 'P' }
+    ]
+  },
+  {
+    axis: 'JP', tag: '休日の計画',
+    q: '休日の予定について、より好むのは？',
+    options: [
+      { text: '事前にしっかり計画を立てて過ごす', value: 'J' },
+      { text: 'その日の気分や流れで自由に決める', value: 'P' }
+    ]
+  }
+];
+
+// ========== 16 TYPES ==========
+const types = {
+  INTJ: {
+    nickname: '建築家',
+    tagline: '戦略的に未来を設計する、独立した思考の持ち主',
+    description: '長期的なビジョンを描き、論理と分析で実現に導く戦略家。少ない情報から本質を見抜き、複雑な課題にも独自の答えを見つけ出します。自立心が強く、知的な探求を好みます。',
+    strengths: ['戦略的思考と長期ビジョン', '独立して課題を解決できる', '高い基準と知的好奇心', '本質を見抜く分析力'],
+    weaknesses: ['完璧主義になりやすい', '感情面の配慮が不足することがある', '柔軟性を欠くことがある', '自分の判断を絶対視しがち'],
+    careers: ['戦略コンサルタント', 'プロダクトマネージャー', 'データサイエンティスト', 'システムアーキテクト', '研究開発', '事業企画']
+  },
+  INTP: {
+    nickname: '論理学者',
+    tagline: '探究心旺盛な思想家、知のフロンティアを切り拓く',
+    description: '物事の仕組みを徹底的に理解したい論理派。型にはまらない発想で新しい理論やアイデアを生み出します。一人で深く考える時間を大切にし、知的な議論を好みます。',
+    strengths: ['論理的・分析的な思考', '独創的なアイデア発想', '客観性と知的誠実さ', '複雑な概念を理解する力'],
+    weaknesses: ['実行や完遂が苦手なことがある', '感情的な議論を避けがち', 'ルーチン作業を退屈に感じる', '理論先行で実務が後回しに'],
+    careers: ['研究者・アナリスト', 'エンジニア', 'ソフトウェア開発', 'UXリサーチャー', '大学教員', '戦略立案']
+  },
+  ENTJ: {
+    nickname: '指揮官',
+    tagline: '大胆な意志と決断力で組織を動かすリーダー',
+    description: '明確なビジョンと強い実行力で組織を率いる生まれながらのリーダー。目標達成に向けて人を動かし、効率的にゴールを目指します。挑戦と成果を求め続けます。',
+    strengths: ['リーダーシップと決断力', '戦略立案と実行力', '長期的な目標達成志向', '組織化・構造化が得意'],
+    weaknesses: ['他者の感情を見落としがち', '性急に進めて摩擦を生むことがある', '権威主義的になることがある', '自分の意見を押し通しすぎる'],
+    careers: ['経営者・役員', '事業責任者', '営業マネジメント', 'プロジェクトリーダー', 'コンサルタント', 'スタートアップ創業']
+  },
+  ENTP: {
+    nickname: '討論者',
+    tagline: '新しい可能性を切り拓くアイデアの発信者',
+    description: '常に新しい視点と可能性を求めるアイデアマン。議論を通じてアイデアを磨き、革新的な解決策を生み出します。挑戦的で、変化を楽しむ柔軟さを持ちます。',
+    strengths: ['発想力と機転', '変化への適応力', '本質を突く議論力', '挑戦的なマインドセット'],
+    weaknesses: ['細部や実行を軽視しがち', '飽きっぽい一面がある', '議論が長引きやすい', '計画的な進行が苦手'],
+    careers: ['新規事業開発', '起業家', 'マーケティング戦略', 'プロダクトマネージャー', 'ベンチャーキャピタル', 'クリエイティブディレクター']
+  },
+  INFJ: {
+    nickname: '提唱者',
+    tagline: '静かな信念と深い洞察で人を導く理想主義者',
+    description: '人や物事の本質を直観的に捉え、強い理想と信念を持って行動する。表には出さないが、芯のある考えと、人への深い共感を併せ持ちます。',
+    strengths: ['深い洞察力と共感力', '長期的なビジョン構築', '誠実さと信念', '一対一の信頼関係構築'],
+    weaknesses: ['完璧を求めすぎて疲弊しやすい', '自分の感情を抱え込みがち', '批判に敏感', '理想と現実のギャップに悩みやすい'],
+    careers: ['人事・組織開発', 'カウンセラー・コーチ', 'ブランド戦略', 'UX/サービスデザイン', '編集者・ライター', '教育']
+  },
+  INFP: {
+    nickname: '仲介者',
+    tagline: '価値観に忠実な、想像力豊かな理想主義者',
+    description: '自分の価値観を大切にし、その価値観に沿った世界を作りたいと願う夢想家。豊かな想像力と共感力を持ち、人の感情に深く寄り添うことができます。',
+    strengths: ['価値観の明確さ', '創造性と想像力', '人への深い共感', '誠実さと一途さ'],
+    weaknesses: ['批判を個人攻撃と受け取りがち', '実務的な詰めが苦手', '理想と現実のギャップに苦しむ', '決断を先延ばしにしがち'],
+    careers: ['コンテンツ制作・ライター', 'デザイナー', 'カウンセラー', 'NPO・ソーシャル領域', 'ブランディング', 'クリエイティブ職']
+  },
+  ENFJ: {
+    nickname: '主人公',
+    tagline: '人を信じ、人を動かすカリスマ的リーダー',
+    description: '人の可能性を信じ、引き出すことに長けた人間関係のリーダー。情熱と共感力で周囲を巻き込み、チームを一つの方向に導いていきます。',
+    strengths: ['人を引きつける力', '高い共感力と傾聴力', 'チーム作りとモチベート', '価値観に基づく行動力'],
+    weaknesses: ['人の問題を背負い込みすぎる', '自分のニーズを後回しにしがち', '批判に動揺しやすい', '理想を押し付ける傾向'],
+    careers: ['人事・組織開発', 'マネージャー', '営業マネジメント', '広報・PR', '研修講師', '採用担当']
+  },
+  ENFP: {
+    nickname: '広報運動家',
+    tagline: '情熱と好奇心で、新しい可能性を広げる活動家',
+    description: '人と可能性に心を動かされる、エネルギッシュなアイデア発信者。新しい出会いと挑戦を求め、周囲を明るく巻き込みながら前に進みます。',
+    strengths: ['発想力と熱量', '人を巻き込む力', '柔軟性と適応力', 'ポジティブなエネルギー'],
+    weaknesses: ['集中の維持が難しいことがある', '細かい管理業務が苦手', '感情の起伏が大きい', '優先順位がブレやすい'],
+    careers: ['マーケティング', 'イベント・プロモーション', '広報・PR', 'コミュニティマネージャー', 'コンテンツプロデューサー', '起業・新規事業']
+  },
+  ISTJ: {
+    nickname: '管理者',
+    tagline: '責任感と実直さで信頼を積み上げる、堅実な働き手',
+    description: '誠実で責任感が強く、ルールと事実を重んじる。一度引き受けたことは確実にやり遂げる信頼性の高さが最大の武器です。',
+    strengths: ['責任感と信頼性', '正確性と実行力', '計画的・体系的な仕事', '実績を積み上げる粘り強さ'],
+    weaknesses: ['変化への対応が遅れがち', '柔軟性に欠けることがある', '感情表現が控えめ', '新しい方法を試すのを避けがち'],
+    careers: ['経理・財務', '法務・コンプライアンス', 'オペレーション', 'プロジェクト管理', '品質管理', 'バックオフィス']
+  },
+  ISFJ: {
+    nickname: '擁護者',
+    tagline: '思いやりと丁寧さで支える、縁の下の力持ち',
+    description: '人をよく観察し、必要なことを察して動く献身的なサポーター。控えめながら、責任感と思いやりでチームを陰から支えます。',
+    strengths: ['きめ細やかな配慮', '高い責任感と継続力', '実務の正確さ', 'チームを支える献身'],
+    weaknesses: ['自己主張が弱くなりがち', '頼まれごとを抱え込みすぎる', '変化を負担に感じやすい', '評価されにくいポジションに甘んじがち'],
+    careers: ['カスタマーサクセス', '人事労務', 'アシスタント・秘書', '医療・福祉', '事務・総務', '教育']
+  },
+  ESTJ: {
+    nickname: '幹部',
+    tagline: '組織と秩序を作り上げる、現実的なリーダー',
+    description: '物事を効率的に動かすことに長けた、実務型のリーダー。明確なルールと役割で組織を機能させ、結果を着実に出していきます。',
+    strengths: ['実行力と組織化', '明確な意思決定', '責任感とリーダーシップ', '現実的な問題解決'],
+    weaknesses: ['柔軟性に欠けることがある', '人の感情への配慮が薄くなりがち', '伝統や前例に固執しやすい', '変化を受け入れにくい'],
+    careers: ['営業マネジメント', 'プロジェクトマネージャー', 'オペレーション統括', '工場・店舗長', '管理職全般', '事業運営']
+  },
+  ESFJ: {
+    nickname: '領事',
+    tagline: '人と人をつなぐ、温かいムードメーカー',
+    description: '周囲との調和を大切にし、チームの空気を温かく保つことに長けた人。気配りと責任感で、人間関係と業務の両方を円滑に回します。',
+    strengths: ['チームの調和を作る力', 'ホスピタリティと気配り', '責任感とまじめさ', '人間関係の構築'],
+    weaknesses: ['対立を避けすぎることがある', '他者評価を気にしすぎる', '批判に弱い', '変化への対応に時間がかかる'],
+    careers: ['営業・カスタマーサクセス', 'イベント運営', '人事・採用', '広報・コミュニケーション', '教育・研修', '受付・サービス職']
+  },
+  ISTP: {
+    nickname: '巨匠',
+    tagline: '冷静な観察力と実践力で課題を解く、職人気質',
+    description: '物事の仕組みを冷静に理解し、自分の手で動かすことを好む実践派。無駄を嫌い、必要なときに最短ルートで解決策を出します。',
+    strengths: ['冷静な分析力と判断', '手を動かす実践力', '緊急時の対応力', '無駄のない効率性'],
+    weaknesses: ['長期的な計画が苦手', '感情表現が控えめ', 'コミットを避けがち', 'チームより個で動きやすい'],
+    careers: ['エンジニア', 'データアナリスト', 'インフラ・運用', 'プロダクト開発', 'トラブルシューター', 'テクニカルサポート']
+  },
+  ISFP: {
+    nickname: '冒険家',
+    tagline: '感性で世界を捉える、自由な表現者',
+    description: '自分の感性と価値観を大切にする、穏やかでアーティスティックな人。言葉より行動や創作で表現することを好み、人にも自由を尊重します。',
+    strengths: ['豊かな感性と美的センス', '柔軟性と適応力', '人への共感と尊重', '行動で示す誠実さ'],
+    weaknesses: ['長期的な計画が苦手', '対立を避けすぎることがある', '自分の意見を伝えるのが苦手', 'プレッシャーに弱い'],
+    careers: ['デザイナー', 'クリエイティブ職', 'コンテンツ制作', '写真・映像', '商品開発', 'ホスピタリティ']
+  },
+  ESTP: {
+    nickname: '起業家',
+    tagline: '行動力と即興力で局面を切り開く、エネルギッシュな実践者',
+    description: '考えるより先に動き、現場の中で道を切り開いていくタイプ。リスクを恐れず、変化と挑戦を楽しむエネルギッシュな実践者です。',
+    strengths: ['行動力とスピード', '臨機応変な対応', '人を巻き込む力', 'プレッシャー下での強さ'],
+    weaknesses: ['長期視点が抜けがち', '計画より行動が先行する', '飽きやすい', 'リスクを過小評価しがち'],
+    careers: ['営業（フィールド）', '事業開発', 'イベントプロデュース', 'スタートアップ', 'ディーラー・トレーダー', '現場リーダー']
+  },
+  ESFP: {
+    nickname: 'エンターテイナー',
+    tagline: '場を明るくする、社交的なムードメーカー',
+    description: '人と楽しさを共有することが大好きな、社交的で温かい人。場のエネルギーを高め、人との交流の中で力を発揮します。',
+    strengths: ['社交性とコミュニケーション力', '場を明るくする力', '人への共感と気配り', '行動力と適応力'],
+    weaknesses: ['長期計画が苦手', '感情に流されやすい', '批判に弱い', '集中力の持続が課題'],
+    careers: ['営業・接客', 'イベント運営', 'タレント・MC', 'カスタマーサクセス', 'ホスピタリティ', '広報・PR']
+  }
+};
+
+// ========== STATE ==========
+let currentQ = 0;
+const answers = new Array(questions.length).fill(null);
+
+// ========== FLOW ==========
+function startSurvey() {
+  document.getElementById('intro').style.display = 'none';
+  document.querySelector('.dimensions').style.display = 'none';
+  document.getElementById('survey').style.display = 'block';
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  const container = document.getElementById('questionContainer');
+  container.innerHTML = `
+    <div class="question animate-in">
+      <span class="q-tag">${q.tag}</span>
+      <div class="q-text">Q${currentQ + 1}. ${q.q}</div>
+      <div class="options">
+        ${q.options.map((opt, i) => `
+          <label class="option">
+            <input type="radio" name="q${currentQ}" value="${opt.value}" ${answers[currentQ] === opt.value ? 'checked' : ''} onchange="onAnswer('${opt.value}')">
+            <span class="radio"></span>
+            ${opt.text}
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  `;
+
+  // progress
+  const pct = Math.round(((currentQ) / questions.length) * 100);
+  document.getElementById('stepCount').textContent = `Q ${currentQ + 1} / ${questions.length}`;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = pct + '%';
+
+  // buttons
+  document.getElementById('prevBtn').disabled = currentQ === 0;
+  document.getElementById('nextBtn').disabled = answers[currentQ] === null;
+  document.getElementById('nextBtn').textContent = currentQ === questions.length - 1 ? '結果を見る →' : '次へ →';
+}
+
+function onAnswer(value) {
+  answers[currentQ] = value;
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function nextQuestion() {
+  if (answers[currentQ] === null) return;
+  if (currentQ < questions.length - 1) {
+    currentQ++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function prevQuestion() {
+  if (currentQ > 0) {
+    currentQ--;
+    renderQuestion();
+  }
+}
+
+// ========== SCORING ==========
+function calculateType() {
+  const scores = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
+  questions.forEach((q, i) => {
+    if (answers[i]) scores[answers[i]]++;
+  });
+
+  const letters = [
+    scores.E >= scores.I ? 'E' : 'I',
+    scores.S >= scores.N ? 'S' : 'N',
+    scores.T >= scores.F ? 'T' : 'F',
+    scores.J >= scores.P ? 'J' : 'P'
+  ];
+
+  // percentages per axis
+  const axisData = [
+    { left: 'E', leftLabel: '外向 (E)', right: 'I', rightLabel: '内向 (I)',
+      leftPct: (scores.E / (scores.E + scores.I)) * 100,
+      rightPct: (scores.I / (scores.E + scores.I)) * 100 },
+    { left: 'S', leftLabel: '感覚 (S)', right: 'N', rightLabel: '直観 (N)',
+      leftPct: (scores.S / (scores.S + scores.N)) * 100,
+      rightPct: (scores.N / (scores.S + scores.N)) * 100 },
+    { left: 'T', leftLabel: '思考 (T)', right: 'F', rightLabel: '感情 (F)',
+      leftPct: (scores.T / (scores.T + scores.F)) * 100,
+      rightPct: (scores.F / (scores.T + scores.F)) * 100 },
+    { left: 'J', leftLabel: '判断 (J)', right: 'P', rightLabel: '知覚 (P)',
+      leftPct: (scores.J / (scores.J + scores.P)) * 100,
+      rightPct: (scores.P / (scores.J + scores.P)) * 100 }
+  ];
+
+  return { type: letters.join(''), axisData };
+}
+
+function showResults() {
+  document.getElementById('survey').style.display = 'none';
+  const { type, axisData } = calculateType();
+  const info = types[type];
+
+  document.getElementById('resultType').textContent = type;
+  document.getElementById('resultNickname').textContent = info.nickname;
+  document.getElementById('resultTagline').textContent = info.tagline;
+  document.getElementById('resultDescription').textContent = info.description;
+
+  // axis bars
+  const barsHtml = axisData.map(a => {
+    const leftActive = a.leftPct >= a.rightPct;
+    const fillSide = leftActive ? 'left-side' : 'right-side';
+    const fillPct = leftActive ? a.leftPct : a.rightPct;
+    return `
+      <div class="axis">
+        <div class="axis-labels">
+          <span class="left ${leftActive ? 'active' : ''}">${a.leftLabel} ${Math.round(a.leftPct)}%</span>
+          <span class="right ${!leftActive ? 'active' : ''}">${Math.round(a.rightPct)}% ${a.rightLabel}</span>
+        </div>
+        <div class="axis-track">
+          <div class="axis-fill ${fillSide}" style="width: ${fillPct}%"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('axisBars').innerHTML = barsHtml;
+
+  // strengths & weaknesses
+  document.getElementById('strengthList').innerHTML = info.strengths.map(s => `<li>${s}</li>`).join('');
+  document.getElementById('weaknessList').innerHTML = info.weaknesses.map(s => `<li>${s}</li>`).join('');
+
+  // careers
+  document.getElementById('careerTags').innerHTML = info.careers.map(c => `<span class="career-tag">${c}</span>`).join('');
+
+  // show results
+  document.getElementById('results').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Wire up the print and restart buttons (more reliable than inline onclick)
+  const printBtn = document.getElementById('printBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  if (printBtn) {
+    printBtn.onclick = function(e) {
+      e.preventDefault();
+      // Small delay so the browser finishes rendering before print dialog
+      setTimeout(function() {
+        try {
+          window.print();
+        } catch (err) {
+          alert('印刷ダイアログを開けませんでした。ブラウザのメニューから「印刷」を選択してください（Ctrl/Cmd + P）。');
+        }
+      }, 100);
+    };
+  }
+  if (restartBtn) {
+    restartBtn.onclick = function(e) {
+      e.preventDefault();
+      restart();
+    };
+  }
+}
+
+function restart() {
+  currentQ = 0;
+  for (let i = 0; i < answers.length; i++) answers[i] = null;
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('intro').style.display = 'block';
+  document.querySelector('.dimensions').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+
+</body>
+</html>
