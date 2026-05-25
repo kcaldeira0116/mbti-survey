@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>パーソナリティタイプ診断 (MBTI) | Salesforce Japan – Field Marketing & Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Manrope:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --brand: #00B3FF;
+    --brand-dark: #0091cf;
+    --brand-darker: #00547a;
+    --brand-soft: #e6f7ff;
+    --ink: #0a2540;
+    --ink-soft: #324a6d;
+    --muted: #6b7c93;
+    --line: #e3eaf2;
+    --bg: #f6f9fc;
+    --white: #ffffff;
+    --success: #00d97e;
+    --shadow-sm: 0 2px 8px rgba(10, 37, 64, 0.06);
+    --shadow-md: 0 8px 24px rgba(10, 37, 64, 0.08);
+    --shadow-lg: 0 16px 48px rgba(10, 37, 64, 0.12);
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  body.lang-en {
+    font-family: 'Manrope', 'Noto Sans JP', -apple-system, sans-serif;
+  }
+
+  /* HEADER */
+  header {
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+    padding: 18px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: var(--shadow-sm);
+  }
+  .header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .brand-logo {
+    width: 38px; height: 38px;
+    background: var(--brand);
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    color: white;
+    font-weight: 800;
+    font-family: 'Manrope', sans-serif;
+    font-size: 18px;
+    box-shadow: 0 4px 12px rgba(0, 179, 255, 0.35);
+  }
+  .brand-text { line-height: 1.2; }
+  .brand-text .b1 { font-weight: 700; font-size: 15px; color: var(--ink); }
+  .brand-text .b2 { font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .header-right { display: flex; align-items: center; gap: 14px; }
+  .lang-toggle {
+    display: inline-flex;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    padding: 3px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .lang-toggle button {
+    background: transparent;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 999px;
+    cursor: pointer;
+    color: var(--muted);
+    font-family: inherit;
+    font-weight: 700;
+    transition: all 0.18s ease;
+  }
+  .lang-toggle button.active {
+    background: var(--brand);
+    color: white;
+    box-shadow: 0 2px 6px rgba(0, 179, 255, 0.3);
+  }
+
+  /* HERO */
+  .hero { max-width: 1100px; margin: 64px auto 48px; padding: 0 24px; text-align: center; }
+  .hero-eyebrow {
+    display: inline-block;
+    background: white;
+    border: 1px solid var(--line);
+    color: var(--brand-darker);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 999px;
+    margin-bottom: 24px;
+    letter-spacing: 0.02em;
+  }
+  .hero h1 {
+    font-family: 'Manrope', 'Noto Sans JP', sans-serif;
+    font-size: clamp(34px, 5vw, 56px);
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 20px;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 .accent {
+    background: linear-gradient(135deg, var(--brand) 0%, #0091cf 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .hero p {
+    font-size: 17px;
+    color: var(--ink-soft);
+    max-width: 640px;
+    margin: 0 auto 32px;
+  }
+
+  /* LENGTH PICKER */
+  .length-picker {
+    max-width: 920px;
+    margin: 0 auto 36px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .length-card {
+    background: white;
+    border: 2px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px 20px;
+    cursor: pointer;
+    text-align: left;
+    transition: all 0.18s ease;
+    position: relative;
+  }
+  .length-card:hover {
+    border-color: var(--brand);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+  .length-card.selected {
+    border-color: var(--brand);
+    background: var(--brand-soft);
+    box-shadow: 0 8px 24px rgba(0, 179, 255, 0.18);
+  }
+  .length-card .badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: var(--brand);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 999px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.18s ease;
+  }
+  .length-card.selected .badge { opacity: 1; }
+  .length-card .lc-title {
+    font-family: 'Manrope', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .length-card .lc-meta {
+    color: var(--brand-darker);
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .length-card .lc-desc {
+    font-size: 13px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+  }
+
+  .cta-button {
+    display: inline-block;
+    background: var(--brand);
+    color: white;
+    border: none;
+    padding: 16px 38px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: inherit;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 8px 20px rgba(0, 179, 255, 0.3);
+    letter-spacing: 0.02em;
+  }
+  .cta-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(0, 179, 255, 0.45);
+    background: var(--brand-dark);
+  }
+
+  /* DIMENSIONS */
+  .dimensions { max-width: 1100px; margin: 64px auto; padding: 0 24px; }
+  .section-label {
+    text-align: center;
+    color: var(--brand-darker);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+  .section-title {
+    font-family: 'Manrope', 'Noto Sans JP', sans-serif;
+    font-size: clamp(26px, 3.5vw, 36px);
+    font-weight: 800;
+    text-align: center;
+    color: var(--ink);
+    margin-bottom: 12px;
+    letter-spacing: -0.01em;
+  }
+  .section-sub { text-align: center; color: var(--muted); margin-bottom: 40px; font-size: 15px; }
+  .dim-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .dim-card {
+    background: white;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 24px;
+    transition: all 0.2s ease;
+  }
+  .dim-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--brand);
+  }
+  .dim-letters {
+    font-family: 'Manrope', sans-serif;
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--brand);
+    margin-bottom: 8px;
+    letter-spacing: 0.02em;
+  }
+  .dim-label { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+  .dim-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* SURVEY */
+  .survey-section { max-width: 760px; margin: 80px auto; padding: 0 24px; display: none; }
+  .survey-card {
+    background: white;
+    border-radius: 20px;
+    padding: 48px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--line);
+  }
+  .progress-wrap { margin-bottom: 36px; }
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .progress-info .step-count { color: var(--brand-darker); }
+  .progress-bar {
+    height: 6px;
+    background: var(--line);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--brand) 0%, var(--brand-dark) 100%);
+    width: 0%;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 999px;
+  }
+  .question { margin-bottom: 28px; }
+  .q-tag {
+    display: inline-block;
+    background: var(--brand-soft);
+    color: var(--brand-darker);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+    letter-spacing: 0.05em;
+  }
+  .q-text {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--ink);
+    line-height: 1.5;
+    margin-bottom: 28px;
+  }
+  .options { display: flex; flex-direction: column; gap: 12px; }
+  .option {
+    display: block;
+    position: relative;
+    background: white;
+    border: 2px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 18px 22px 18px 56px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    font-size: 15px;
+    color: var(--ink-soft);
+    line-height: 1.5;
+  }
+  .option:hover { border-color: var(--brand); background: var(--brand-soft); color: var(--ink); }
+  .option input { position: absolute; opacity: 0; pointer-events: none; }
+  .option .radio {
+    position: absolute;
+    left: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px; height: 20px;
+    border: 2px solid #cdd6e0;
+    border-radius: 50%;
+    transition: all 0.18s ease;
+  }
+  .option .radio::after {
+    content: '';
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 10px; height: 10px;
+    background: var(--brand);
+    border-radius: 50%;
+    transition: transform 0.18s ease;
+  }
+  .option input:checked ~ .radio { border-color: var(--brand); }
+  .option input:checked ~ .radio::after { transform: translate(-50%, -50%) scale(1); }
+  .option:has(input:checked) {
+    border-color: var(--brand);
+    background: var(--brand-soft);
+    color: var(--ink);
+    font-weight: 500;
+  }
+  .controls { margin-top: 36px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .btn {
+    padding: 14px 30px;
+    border-radius: 999px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    transition: all 0.18s ease;
+  }
+  .btn-secondary {
+    background: white;
+    color: var(--ink-soft);
+    border: 1.5px solid var(--line);
+  }
+  .btn-secondary:hover:not(:disabled) { border-color: var(--ink-soft); color: var(--ink); }
+  .btn-secondary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-primary {
+    background: var(--brand);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 179, 255, 0.3);
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: var(--brand-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 179, 255, 0.4);
+  }
+  .btn-primary:disabled {
+    background: #cdd6e0;
+    color: white;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* RESULTS */
+  .results-section { max-width: 880px; margin: 60px auto; padding: 0 24px; display: none; }
+  .result-hero {
+    background: linear-gradient(135deg, var(--brand) 0%, #0091cf 100%);
+    border-radius: 20px;
+    padding: 48px;
+    color: white;
+    text-align: center;
+    box-shadow: 0 20px 48px rgba(0, 179, 255, 0.3);
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .result-eyebrow {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    opacity: 0.85;
+    margin-bottom: 12px;
+  }
+  .result-type {
+    font-family: 'Manrope', sans-serif;
+    font-size: clamp(64px, 12vw, 96px);
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    line-height: 1;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .result-nickname {
+    font-size: clamp(22px, 3.5vw, 30px);
+    font-weight: 700;
+    margin-bottom: 8px;
+    position: relative;
+  }
+  .result-tagline {
+    font-size: 16px;
+    opacity: 0.92;
+    max-width: 520px;
+    margin: 0 auto;
+    position: relative;
+  }
+  .axis-bars {
+    background: white;
+    border-radius: var(--radius);
+    padding: 32px;
+    margin-bottom: 24px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--line);
+  }
+  .axis-bars h3 { font-size: 18px; font-weight: 700; margin-bottom: 24px; color: var(--ink); }
+  .axis { margin-bottom: 22px; }
+  .axis:last-child { margin-bottom: 0; }
+  .axis-labels { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 13px; font-weight: 600; }
+  .axis-labels .left.active, .axis-labels .right.active { color: var(--brand-darker); }
+  .axis-labels .left:not(.active), .axis-labels .right:not(.active) { color: var(--muted); }
+  .axis-track { height: 8px; background: var(--line); border-radius: 999px; position: relative; overflow: hidden; }
+  .axis-fill {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: var(--brand);
+    border-radius: 999px;
+    transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .axis-fill.left-side { left: 0; }
+  .axis-fill.right-side { right: 0; }
+  .insight-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+  .insight-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 28px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+  }
+  .insight-card h4 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .insight-card .icon-box {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    background: var(--brand-soft);
+    color: var(--brand-darker);
+    font-weight: 800;
+    font-size: 14px;
+    font-family: 'Manrope', sans-serif;
+  }
+  .insight-card ul { list-style: none; padding: 0; }
+  .insight-card li {
+    padding: 8px 0 8px 22px;
+    position: relative;
+    font-size: 14px;
+    color: var(--ink-soft);
+    line-height: 1.6;
+    border-bottom: 1px dashed var(--line);
+  }
+  .insight-card li:last-child { border-bottom: none; }
+  .insight-card li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 16px;
+    width: 8px; height: 8px;
+    background: var(--brand);
+    border-radius: 50%;
+  }
+  .insight-card.weakness li::before { background: #ffb84d; }
+  .careers-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 32px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
+  }
+  .careers-card h4 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .careers-card .icon-box {
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    background: var(--brand-soft);
+    color: var(--brand-darker);
+    display: grid;
+    place-items: center;
+    font-weight: 800;
+    font-family: 'Manrope', sans-serif;
+  }
+  .career-tags { display: flex; flex-wrap: wrap; gap: 10px; }
+  .career-tag {
+    background: var(--brand-soft);
+    color: var(--brand-darker);
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    border: 1px solid #b3e5ff;
+  }
+  .description-card {
+    background: white;
+    border-radius: var(--radius);
+    padding: 32px;
+    border: 1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 24px;
+  }
+  .description-card h4 { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 14px; }
+  .description-card p { color: var(--ink-soft); font-size: 15px; line-height: 1.8; }
+  .result-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 32px; }
+  .disclaimer {
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    margin-top: 32px;
+    padding: 16px;
+    background: white;
+    border-radius: var(--radius-sm);
+    border: 1px dashed var(--line);
+  }
+  footer {
+    margin-top: 80px;
+    padding: 32px 24px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 12px;
+    border-top: 1px solid var(--line);
+    background: white;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-in { animation: fadeUp 0.4s ease-out; }
+
+  /* PRINT */
+  @media print {
+    @page { size: A4; margin: 15mm; }
+    body { background: white !important; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    header, footer, .controls, .result-actions, .hero, .dimensions, .survey-section { display: none !important; }
+    .results-section { display: block !important; margin: 0 !important; padding: 0 !important; max-width: 100% !important; }
+    .result-hero { background: linear-gradient(135deg, #00B3FF 0%, #0091cf 100%) !important; color: white !important; box-shadow: none !important; page-break-inside: avoid; }
+    .axis-bars, .description-card, .insight-card, .careers-card { box-shadow: none !important; border: 1px solid #e3eaf2 !important; page-break-inside: avoid; }
+    .career-tag { background: #e6f7ff !important; color: #00547a !important; border: 1px solid #b3e5ff !important; }
+    .insight-card li::before { background: #00B3FF !important; }
+    .insight-card.weakness li::before { background: #ffb84d !important; }
+    .disclaimer { page-break-inside: avoid; }
+  }
+
+  @media (max-width: 768px) {
+    .header-tag { display: none; }
+    .survey-card { padding: 28px 22px; }
+    .dim-grid { grid-template-columns: repeat(2, 1fr); }
+    .length-picker { grid-template-columns: 1fr; }
+    .insight-grid { grid-template-columns: 1fr; }
+    .result-hero { padding: 36px 24px; }
+    .careers-card, .description-card, .axis-bars { padding: 24px; }
+    .controls { flex-direction: row; }
+    .btn { padding: 12px 22px; font-size: 14px; }
+    .q-text { font-size: 17px; }
+    .option { font-size: 14px; padding: 16px 18px 16px 50px; }
+    .hero { margin: 40px auto 32px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-logo">S</div>
+      <div class="brand-text">
+        <div class="b1">Salesforce Japan</div>
+        <div class="b2">Field Marketing &amp; Operations</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="lang-toggle" role="tablist">
+        <button id="langJa" class="active" onclick="setLang('ja')">日本語</button>
+        <button id="langEn" onclick="setLang('en')">English</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- INTRO -->
+<section class="hero" id="intro">
+  <div class="hero-eyebrow" data-i18n="hero.eyebrow">For Team Members</div>
+  <h1 data-i18n-html="hero.title"></h1>
+  <p data-i18n="hero.sub"></p>
+
+  <div class="length-picker" id="lengthPicker">
+    <div class="length-card" data-length="16" onclick="selectLength(16)">
+      <span class="badge" data-i18n="picker.selected">SELECTED</span>
+      <div class="lc-title" data-i18n="picker.short.title">ショート</div>
+      <div class="lc-meta" data-i18n="picker.short.meta">16問 · 約3分</div>
+      <div class="lc-desc" data-i18n="picker.short.desc">手早く自分のタイプ傾向を知りたい人に。</div>
+    </div>
+    <div class="length-card selected" data-length="32" onclick="selectLength(32)">
+      <span class="badge" data-i18n="picker.selected">SELECTED</span>
+      <div class="lc-title" data-i18n="picker.standard.title">スタンダード</div>
+      <div class="lc-meta" data-i18n="picker.standard.meta">32問 · 約6分</div>
+      <div class="lc-desc" data-i18n="picker.standard.desc">バランスよく精度を高めたい、もっともおすすめの長さ。</div>
+    </div>
+    <div class="length-card" data-length="48" onclick="selectLength(48)">
+      <span class="badge" data-i18n="picker.selected">SELECTED</span>
+      <div class="lc-title" data-i18n="picker.full.title">フル</div>
+      <div class="lc-meta" data-i18n="picker.full.meta">48問 · 約10分</div>
+      <div class="lc-desc" data-i18n="picker.full.desc">じっくり時間をかけて、より深く自分を知りたい人に。</div>
+    </div>
+  </div>
+
+  <button class="cta-button" onclick="startSurvey()" data-i18n="hero.cta">診断を開始する →</button>
+</section>
+
+<section class="dimensions" id="dimensions">
+  <div class="section-label" data-i18n="dim.label">4つの軸</div>
+  <h2 class="section-title" data-i18n="dim.title">4つの軸から、性格傾向を可視化</h2>
+  <p class="section-sub" data-i18n="dim.sub">MBTIは、人の思考や行動パターンを4つの対照的な軸で捉えるフレームワークです。</p>
+  <div class="dim-grid">
+    <div class="dim-card">
+      <div class="dim-letters">E / I</div>
+      <div class="dim-label" data-i18n="dim.ei.label">外向 / 内向</div>
+      <div class="dim-desc" data-i18n="dim.ei.desc">エネルギーをどこから得るか — 人との交流か、内省か</div>
+    </div>
+    <div class="dim-card">
+      <div class="dim-letters">S / N</div>
+      <div class="dim-label" data-i18n="dim.sn.label">感覚 / 直観</div>
+      <div class="dim-desc" data-i18n="dim.sn.desc">情報を捉えるとき、事実重視か、可能性重視か</div>
+    </div>
+    <div class="dim-card">
+      <div class="dim-letters">T / F</div>
+      <div class="dim-label" data-i18n="dim.tf.label">思考 / 感情</div>
+      <div class="dim-desc" data-i18n="dim.tf.desc">意思決定の軸が、論理か、人や価値観か</div>
+    </div>
+    <div class="dim-card">
+      <div class="dim-letters">J / P</div>
+      <div class="dim-label" data-i18n="dim.jp.label">判断 / 知覚</div>
+      <div class="dim-desc" data-i18n="dim.jp.desc">物事の進め方が、計画的か、柔軟か</div>
+    </div>
+  </div>
+</section>
+
+<!-- SURVEY -->
+<section class="survey-section" id="survey">
+  <div class="survey-card">
+    <div class="progress-wrap">
+      <div class="progress-info">
+        <span class="step-count" id="stepCount">Q 1 / 16</span>
+        <span id="progressText">0%</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    </div>
+    <div id="questionContainer"></div>
+    <div class="controls">
+      <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()" disabled data-i18n="btn.back">← 戻る</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()" disabled data-i18n="btn.next">次へ →</button>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section class="results-section" id="results">
+  <div class="result-hero">
+    <div class="result-eyebrow" data-i18n="result.eyebrow">あなたのパーソナリティタイプ</div>
+    <div class="result-type" id="resultType">----</div>
+    <div class="result-nickname" id="resultNickname">—</div>
+    <div class="result-tagline" id="resultTagline">—</div>
+  </div>
+  <div class="axis-bars">
+    <h3 data-i18n="result.axisTitle">4つの軸の傾向スコア</h3>
+    <div id="axisBars"></div>
+  </div>
+  <div class="description-card">
+    <h4 data-i18n="result.aboutTitle">このタイプについて</h4>
+    <p id="resultDescription">—</p>
+  </div>
+  <div class="insight-grid">
+    <div class="insight-card">
+      <h4><span class="icon-box">+</span> <span data-i18n="result.strengths">強み</span></h4>
+      <ul id="strengthList"></ul>
+    </div>
+    <div class="insight-card weakness">
+      <h4><span class="icon-box">!</span> <span data-i18n="result.weaknesses">注意したい傾向</span></h4>
+      <ul id="weaknessList"></ul>
+    </div>
+  </div>
+  <div class="careers-card">
+    <h4><span class="icon-box">★</span> <span data-i18n="result.careers">強みが活きる仕事・役割</span></h4>
+    <div class="career-tags" id="careerTags"></div>
+  </div>
+  <div class="result-actions">
+    <button class="btn btn-secondary" id="restartBtn" data-i18n="btn.restart">もう一度診断する</button>
+    <button class="btn btn-primary" id="printBtn" data-i18n="btn.print">結果を印刷 / PDFで保存</button>
+  </div>
+  <div class="disclaimer" data-i18n="result.disclaimer">
+    ※ 本診断はMBTIの考え方をベースにした簡易的なセルフチェックです。公式のMBTI®アセスメントとは異なり、自己理解とチーム内対話のきっかけとしてご活用ください。
+  </div>
+</section>
+
+<footer data-i18n="footer">© 2026 Salesforce Japan – Field Marketing &amp; Operations. For internal use.</footer>
+
+<script>
+// ============================================================
+// I18N STRINGS
+// ============================================================
+const I18N = {
+  ja: {
+    'hero.eyebrow': 'For Team Members',
+    'hero.title': 'あなたの<span class="accent">仕事のスタイル</span>を、<br>16タイプから見つけよう。',
+    'hero.sub': 'MBTIをベースにした16タイプ診断で、自分の思考・行動パターンを可視化。チーム内のコラボレーションや、強みを活かしたキャリア形成のヒントに。',
+    'hero.cta': '診断を開始する →',
+    'picker.selected': '選択中',
+    'picker.short.title': 'ショート',
+    'picker.short.meta': '16問 · 約3分',
+    'picker.short.desc': '手早く自分のタイプ傾向を知りたい人に。',
+    'picker.standard.title': 'スタンダード',
+    'picker.standard.meta': '32問 · 約6分',
+    'picker.standard.desc': 'バランスよく精度を高めたい、もっともおすすめの長さ。',
+    'picker.full.title': 'フル',
+    'picker.full.meta': '48問 · 約10分',
+    'picker.full.desc': 'じっくり時間をかけて、より深く自分を知りたい人に。',
+    'dim.label': '4つの軸',
+    'dim.title': '4つの軸から、性格傾向を可視化',
+    'dim.sub': 'MBTIは、人の思考や行動パターンを4つの対照的な軸で捉えるフレームワークです。',
+    'dim.ei.label': '外向 / 内向',
+    'dim.ei.desc': 'エネルギーをどこから得るか — 人との交流か、内省か',
+    'dim.sn.label': '感覚 / 直観',
+    'dim.sn.desc': '情報を捉えるとき、事実重視か、可能性重視か',
+    'dim.tf.label': '思考 / 感情',
+    'dim.tf.desc': '意思決定の軸が、論理か、人や価値観か',
+    'dim.jp.label': '判断 / 知覚',
+    'dim.jp.desc': '物事の進め方が、計画的か、柔軟か',
+    'btn.back': '← 戻る',
+    'btn.next': '次へ →',
+    'btn.viewResults': '結果を見る →',
+    'btn.restart': 'もう一度診断する',
+    'btn.print': '結果を印刷 / PDFで保存',
+    'result.eyebrow': 'あなたのパーソナリティタイプ',
+    'result.axisTitle': '4つの軸の傾向スコア',
+    'result.aboutTitle': 'このタイプについて',
+    'result.strengths': '強み',
+    'result.weaknesses': '注意したい傾向',
+    'result.careers': '強みが活きる仕事・役割',
+    'result.disclaimer': '※ 本診断はMBTIの考え方をベースにした簡易的なセルフチェックです。公式のMBTI®アセスメントとは異なり、自己理解とチーム内対話のきっかけとしてご活用ください。',
+    'footer': '© 2026 Salesforce Japan – Field Marketing & Operations. For internal use.',
+    'axis.ei.left': '外向 (E)',
+    'axis.ei.right': '内向 (I)',
+    'axis.sn.left': '感覚 (S)',
+    'axis.sn.right': '直観 (N)',
+    'axis.tf.left': '思考 (T)',
+    'axis.tf.right': '感情 (F)',
+    'axis.jp.left': '判断 (J)',
+    'axis.jp.right': '知覚 (P)',
+    'print.fallback': '印刷ダイアログを開けませんでした。ブラウザのメニューから「印刷」を選択してください（Ctrl/Cmd + P）。'
+  },
+  en: {
+    'hero.eyebrow': 'For Team Members',
+    'hero.title': 'Discover your <span class="accent">work style</span>,<br>across 16 personality types.',
+    'hero.sub': 'A 16-type personality assessment based on MBTI. Visualize how you think and act, and unlock cues for collaboration and growth.',
+    'hero.cta': 'Start the Assessment →',
+    'picker.selected': 'SELECTED',
+    'picker.short.title': 'Short',
+    'picker.short.meta': '16 questions · ~3 min',
+    'picker.short.desc': 'For when you want a quick read on your type.',
+    'picker.standard.title': 'Standard',
+    'picker.standard.meta': '32 questions · ~6 min',
+    'picker.standard.desc': 'A balanced length for higher accuracy — our recommendation.',
+    'picker.full.title': 'Full',
+    'picker.full.meta': '48 questions · ~10 min',
+    'picker.full.desc': 'For a deeper, more nuanced look at your personality.',
+    'dim.label': 'Four Dimensions',
+    'dim.title': 'Four axes that map your personality',
+    'dim.sub': 'MBTI captures how people think and behave through four contrasting dimensions.',
+    'dim.ei.label': 'Extraversion / Introversion',
+    'dim.ei.desc': 'Where you draw energy — from people, or from reflection',
+    'dim.sn.label': 'Sensing / Intuition',
+    'dim.sn.desc': 'How you take in information — facts, or possibilities',
+    'dim.tf.label': 'Thinking / Feeling',
+    'dim.tf.desc': 'How you decide — by logic, or by people and values',
+    'dim.jp.label': 'Judging / Perceiving',
+    'dim.jp.desc': 'How you operate — by plan, or by flexibility',
+    'btn.back': '← Back',
+    'btn.next': 'Next →',
+    'btn.viewResults': 'See Results →',
+    'btn.restart': 'Take it again',
+    'btn.print': 'Print / Save as PDF',
+    'result.eyebrow': 'Your Personality Type',
+    'result.axisTitle': 'Scores across the four dimensions',
+    'result.aboutTitle': 'About this type',
+    'result.strengths': 'Strengths',
+    'result.weaknesses': 'Watch-outs',
+    'result.careers': 'Roles where your strengths shine',
+    'result.disclaimer': '※ This is a lightweight self-check based on MBTI concepts. It is not the official MBTI® assessment. Please use it as a starting point for self-reflection and team conversation.',
+    'footer': '© 2026 Salesforce Japan – Field Marketing & Operations. For internal use.',
+    'axis.ei.left': 'Extraversion (E)',
+    'axis.ei.right': 'Introversion (I)',
+    'axis.sn.left': 'Sensing (S)',
+    'axis.sn.right': 'Intuition (N)',
+    'axis.tf.left': 'Thinking (T)',
+    'axis.tf.right': 'Feeling (F)',
+    'axis.jp.left': 'Judging (J)',
+    'axis.jp.right': 'Perceiving (P)',
+    'print.fallback': 'Could not open the print dialog. Please use your browser menu to print (Ctrl/Cmd + P).'
+  }
+};
+
+// ============================================================
+// QUESTIONS — 48 total (12 per axis), bilingual
+// Used in order: Short = first 4/axis (16), Standard = first 8/axis (32), Full = all 12/axis (48)
+// ============================================================
+const Q_BANK = {
+  EI: [
+    { tag: { ja: 'エネルギー', en: 'Energy' },
+      q:   { ja: '週末の過ごし方として、より自然に感じるのは？', en: 'Which weekend feels more natural to you?' },
+      options: [
+        { ja: '友人や仲間と集まって、外出やイベントを楽しむ', en: 'Getting together with friends, going out, enjoying events', value: 'E' },
+        { ja: '一人または少人数で、家で静かに過ごす', en: 'Spending quiet time at home, alone or with a few people', value: 'I' } ] },
+    { tag: { ja: 'コミュニケーション', en: 'Communication' },
+      q:   { ja: '会議や打ち合わせで、あなたは…', en: 'In meetings and discussions, you tend to…' },
+      options: [
+        { ja: '話しながら考えを整理し、その場で発言することが多い', en: 'Think out loud and speak up in the moment', value: 'E' },
+        { ja: '一度頭の中で考えてから、要点を絞って発言する', en: 'Think it through first, then share the key point', value: 'I' } ] },
+    { tag: { ja: '人との関わり', en: 'Connecting with others' },
+      q:   { ja: '新しいプロジェクトのチームに加わったとき…', en: 'When you join a new project team…' },
+      options: [
+        { ja: 'まずは多くのメンバーと話して、関係を広く築く', en: 'You talk to many people and build broad relationships first', value: 'E' },
+        { ja: '少人数とじっくり関係を深めて、信頼を作る', en: 'You go deep with a few people to build trust', value: 'I' } ] },
+    { tag: { ja: 'エネルギー回復', en: 'Recharging' },
+      q:   { ja: '忙しい一日が終わったあと、回復のために選ぶのは？', en: 'After a busy day, you recharge by…' },
+      options: [
+        { ja: '同僚や友人と食事や会話をして、リフレッシュする', en: 'Sharing a meal or chat with colleagues and friends', value: 'E' },
+        { ja: '一人の時間を作り、静かに過ごしてリセットする', en: 'Carving out alone time and resetting quietly', value: 'I' } ] },
+    { tag: { ja: 'パーティの場で', en: 'At a party' },
+      q:   { ja: 'パーティや集まりに行ったとき、自然と取る行動は？', en: 'At a party or gathering, you naturally tend to…' },
+      options: [
+        { ja: 'いろんな人と話して、その場の輪を広げる', en: 'Talk to many people and expand the circle', value: 'E' },
+        { ja: '気の合う人とじっくり深い話をする', en: 'Have one or two deeper conversations', value: 'I' } ] },
+    { tag: { ja: '注目される場面', en: 'Being noticed' },
+      q:   { ja: 'プレゼンや発表など、注目される場面では？', en: 'When you are in the spotlight — presentations, demos…' },
+      options: [
+        { ja: '人の前で話すことでエネルギーが湧いてくる', en: 'You feel energized speaking in front of people', value: 'E' },
+        { ja: '終わった後に静かな場所でエネルギーを回復したい', en: 'You want quiet time afterward to recharge', value: 'I' } ] },
+    { tag: { ja: '会話のスタイル', en: 'Conversation style' },
+      q:   { ja: '同僚との会話の中で…', en: 'In conversations with colleagues…' },
+      options: [
+        { ja: '幅広い話題を、リズムよくテンポよく話したい', en: 'You enjoy broad topics, fast back-and-forth', value: 'E' },
+        { ja: '一つのテーマをじっくり深掘りして話したい', en: 'You prefer going deep on one topic', value: 'I' } ] },
+    { tag: { ja: '初対面', en: 'First meetings' },
+      q:   { ja: '初対面の人が多い場面では？', en: 'In a room of new people, you tend to…' },
+      options: [
+        { ja: '自分から声をかけて関係を作るのが楽しい', en: 'Enjoy approaching others to start a connection', value: 'E' },
+        { ja: 'まずは様子を見て、自然な流れで関係を作る', en: 'Observe first, then let connections form naturally', value: 'I' } ] },
+    { tag: { ja: '集中環境', en: 'Focus environment' },
+      q:   { ja: '集中して仕事を進めたいとき、心地よい環境は？', en: 'For deep focused work, you prefer…' },
+      options: [
+        { ja: 'チームと一緒の空間で、適度な活気がある場所', en: 'A shared space with light buzz around you', value: 'E' },
+        { ja: '一人で静かに集中できる環境', en: 'A quiet space where you can be alone', value: 'I' } ] },
+    { tag: { ja: 'アイデアの発展', en: 'Developing ideas' },
+      q:   { ja: '考えを深めるために有効なのは？', en: 'You sharpen your thinking best by…' },
+      options: [
+        { ja: '誰かと話すことで、アイデアが整理される', en: 'Talking it out with someone', value: 'E' },
+        { ja: '一人で書き出したり考え込むことで、整理される', en: 'Writing and reflecting on your own', value: 'I' } ] },
+    { tag: { ja: '休日の予定', en: 'Weekend plans' },
+      q:   { ja: '理想的な金曜日の夜は？', en: 'Your ideal Friday night is…' },
+      options: [
+        { ja: '仲間と外で集まり、賑やかに過ごす', en: 'Out with friends, somewhere lively', value: 'E' },
+        { ja: '家でゆっくり、自分の時間を満喫する', en: 'Home and quiet, enjoying your own time', value: 'I' } ] },
+    { tag: { ja: '人数の好み', en: 'Group size' },
+      q:   { ja: '一緒に過ごす時間が心地よいのは？', en: 'You feel most comfortable…' },
+      options: [
+        { ja: '大人数で賑やかに過ごす時間', en: 'In larger, livelier groups', value: 'E' },
+        { ja: '少人数で深く語り合う時間', en: 'In small, deeper gatherings', value: 'I' } ] }
+  ],
+  SN: [
+    { tag: { ja: '情報の捉え方', en: 'Taking in information' },
+      q:   { ja: '物事を理解するとき、あなたが大切にするのは？', en: 'When understanding something, you value most…' },
+      options: [
+        { ja: '具体的な事実・データ・実例', en: 'Concrete facts, data, examples', value: 'S' },
+        { ja: '全体像・パターン・将来の可能性', en: 'The big picture, patterns, future possibilities', value: 'N' } ] },
+    { tag: { ja: '学び方', en: 'Learning' },
+      q:   { ja: '新しいスキルを学ぶときに好むのは？', en: 'When learning a new skill, you prefer…' },
+      options: [
+        { ja: '手順を踏んで、実例から少しずつ習得する', en: 'Step-by-step, learning through examples', value: 'S' },
+        { ja: '概念や全体構造から入り、自分なりに応用する', en: 'Starting from concepts and applying them your way', value: 'N' } ] },
+    { tag: { ja: '会話の傾向', en: 'Conversation topics' },
+      q:   { ja: '会話の中で、あなたがよく語るのは？', en: 'In conversation, you often talk about…' },
+      options: [
+        { ja: '実際に起きた出来事や、具体的な体験談', en: 'Things that actually happened, concrete stories', value: 'S' },
+        { ja: 'アイデアや将来の構想、「もし～だったら」の話', en: 'Ideas, possibilities, "what if" scenarios', value: 'N' } ] },
+    { tag: { ja: '問題解決', en: 'Problem-solving' },
+      q:   { ja: '問題に直面したとき、最初に取る行動は？', en: 'Facing a problem, your first move is…' },
+      options: [
+        { ja: '過去の事例や実績を調べ、確実な方法を選ぶ', en: 'Researching precedents and choosing a proven path', value: 'S' },
+        { ja: '新しい切り口や、まだ試されていない方法を探す', en: 'Looking for new angles and untried approaches', value: 'N' } ] },
+    { tag: { ja: '指示の理解', en: 'Following instructions' },
+      q:   { ja: '指示を受けるとき、ありがたいのは？', en: 'When given instructions, you appreciate…' },
+      options: [
+        { ja: '具体的な手順と、明確なゴール', en: 'Concrete steps and a clear goal', value: 'S' },
+        { ja: '目的や背景と、進め方の自由度', en: 'The purpose and context, with room to find your own way', value: 'N' } ] },
+    { tag: { ja: '本の好み', en: 'Reading preferences' },
+      q:   { ja: '本や記事を読むとき、より惹かれるのは？', en: 'When reading, you are drawn more to…' },
+      options: [
+        { ja: '実用的なノウハウや、実例・ケーススタディ', en: 'Practical how-tos, cases, real examples', value: 'S' },
+        { ja: '新しい考え方や、未来を語る話', en: 'New ideas, theories, future-oriented thinking', value: 'N' } ] },
+    { tag: { ja: '細部への注意', en: 'Detail orientation' },
+      q:   { ja: '仕事に取り組むとき、自然と意識が向くのは？', en: 'When working on a task, your attention goes to…' },
+      options: [
+        { ja: '細部の正確さ、抜け漏れのなさ', en: 'Detail accuracy and not missing anything', value: 'S' },
+        { ja: '全体のつながり、意味やインパクト', en: 'How it connects, its meaning and impact', value: 'N' } ] },
+    { tag: { ja: '説明の仕方', en: 'How you explain' },
+      q:   { ja: '人に何かを説明するとき、より得意なのは？', en: 'When explaining something, you are better at…' },
+      options: [
+        { ja: '具体例や事実を順を追って伝える', en: 'Walking through concrete examples step by step', value: 'S' },
+        { ja: '比喩や全体像でイメージを伝える', en: 'Using metaphors and big-picture framing', value: 'N' } ] },
+    { tag: { ja: '改善か発明か', en: 'Improve or invent' },
+      q:   { ja: '組織やプロセスに対して、より自然なのは？', en: 'Toward systems and processes, you are more inclined to…' },
+      options: [
+        { ja: '既存の仕組みを着実に改善する', en: 'Steadily improve what already exists', value: 'S' },
+        { ja: 'ゼロから新しい仕組みを考える', en: 'Reinvent it from scratch', value: 'N' } ] },
+    { tag: { ja: '現在 / 未来', en: 'Present or future' },
+      q:   { ja: '関心が向きやすいのは？', en: 'Your attention is drawn more toward…' },
+      options: [
+        { ja: '今ここで起きていること', en: 'What is happening right now', value: 'S' },
+        { ja: 'これから起こりうること', en: 'What could happen next', value: 'N' } ] },
+    { tag: { ja: '記憶の仕方', en: 'How you remember' },
+      q:   { ja: '出来事を覚えているとき、印象に残るのは？', en: 'When recalling events, you remember more…' },
+      options: [
+        { ja: '具体的な場面、時間、場所、人物', en: 'Specific scenes, time, place, people', value: 'S' },
+        { ja: 'その時感じたこと、意味づけ', en: 'How you felt and what it meant', value: 'N' } ] },
+    { tag: { ja: 'プレゼンの好み', en: 'Presentation style' },
+      q:   { ja: 'プレゼン資料を作るとき、優先するのは？', en: 'When building a presentation, you prioritize…' },
+      options: [
+        { ja: 'データと事実で、明快に伝える', en: 'Data and facts, told clearly', value: 'S' },
+        { ja: 'ビジョンとストーリーで、心を動かす', en: 'Vision and story, told to move people', value: 'N' } ] }
+  ],
+  TF: [
+    { tag: { ja: '意思決定', en: 'Decision-making' },
+      q:   { ja: '重要な決断を下すとき、優先するのは？', en: 'When making an important decision, you prioritize…' },
+      options: [
+        { ja: '客観的な事実と論理的な分析', en: 'Objective facts and logical analysis', value: 'T' },
+        { ja: '関係者の気持ちと、価値観への影響', en: 'How it affects people and shared values', value: 'F' } ] },
+    { tag: { ja: 'フィードバック', en: 'Giving feedback' },
+      q:   { ja: '同僚にフィードバックを伝えるとき、より自然なのは？', en: 'When giving feedback to a colleague, you tend to…' },
+      options: [
+        { ja: '改善点をストレートに、率直に伝える', en: 'Be direct and frank about what needs to change', value: 'T' },
+        { ja: '相手の気持ちに配慮し、ポジティブな点も含めて伝える', en: 'Mind their feelings and balance with positives', value: 'F' } ] },
+    { tag: { ja: '評価軸', en: 'How you evaluate' },
+      q:   { ja: 'チームメンバーを評価するときに重視するのは？', en: 'When evaluating team members, you weigh…' },
+      options: [
+        { ja: '成果・スキル・公平な基準', en: 'Results, skills, fair standards', value: 'T' },
+        { ja: '努力・チームへの貢献・人柄', en: 'Effort, contribution, character', value: 'F' } ] },
+    { tag: { ja: '対立への対応', en: 'Handling conflict' },
+      q:   { ja: '意見の対立が起きたとき、あなたは…', en: 'When opinions clash, you tend to…' },
+      options: [
+        { ja: '論点を整理し、最も合理的な結論を導こうとする', en: 'Clarify the issues and pursue the most rational outcome', value: 'T' },
+        { ja: '関係性を保ちながら、全員が納得できる落としどころを探す', en: 'Preserve relationships and find a landing everyone can accept', value: 'F' } ] },
+    { tag: { ja: '評価される時', en: 'Being evaluated' },
+      q:   { ja: '評価されるなら、より響くのは？', en: 'You feel more recognized when praised for…' },
+      options: [
+        { ja: '能力やスキル、成果を認められること', en: 'Your capability, skill, results', value: 'T' },
+        { ja: '人柄や努力、姿勢を認められること', en: 'Your character, effort, attitude', value: 'F' } ] },
+    { tag: { ja: '議論の取り方', en: 'In discussions' },
+      q:   { ja: '議論において、あなたが大切にするのは？', en: 'In a discussion, what matters more to you is…' },
+      options: [
+        { ja: '正しさ、論理の整合性', en: 'Being right, logical consistency', value: 'T' },
+        { ja: '相手の気持ちと、場の調和', en: 'Others\' feelings and harmony in the room', value: 'F' } ] },
+    { tag: { ja: '判断の根拠', en: 'Decision basis' },
+      q:   { ja: '迷ったとき、最終的に基準にするのは？', en: 'When in doubt, your final reference is…' },
+      options: [
+        { ja: '理屈に合っているか', en: 'Whether it makes logical sense', value: 'T' },
+        { ja: '自分や周りの大切な価値観に沿っているか', en: 'Whether it aligns with your values and others\'', value: 'F' } ] },
+    { tag: { ja: '人の悩みへの反応', en: 'Responding to others' },
+      q:   { ja: '同僚が悩みを相談してきたとき…', en: 'When a colleague comes to you with a problem…' },
+      options: [
+        { ja: 'まず原因と解決策を一緒に考える', en: 'You jump into root cause and solutions', value: 'T' },
+        { ja: 'まず気持ちに寄り添って話を聴く', en: 'You first listen and acknowledge their feelings', value: 'F' } ] },
+    { tag: { ja: '公平性', en: 'Fairness' },
+      q:   { ja: 'チーム内で「公平」を考えるとき…', en: 'Thinking about "fairness" in your team…' },
+      options: [
+        { ja: '全員に同じ基準を適用するのが公平', en: 'Same standard for everyone is fair', value: 'T' },
+        { ja: '一人ひとりの状況に応じた対応が公平', en: 'Adapting to each person\'s situation is fair', value: 'F' } ] },
+    { tag: { ja: 'ミスへの対応', en: 'When mistakes happen' },
+      q:   { ja: '誰かがミスをしたとき、最初に気になるのは？', en: 'When someone makes a mistake, you focus first on…' },
+      options: [
+        { ja: '何が原因で、どう防ぐか', en: 'What caused it and how to prevent it', value: 'T' },
+        { ja: '本人が今どう感じているか', en: 'How the person is feeling', value: 'F' } ] },
+    { tag: { ja: '意思決定の説明', en: 'Explaining a decision' },
+      q:   { ja: '自分の決断を人に説明するとき…', en: 'When explaining your decision to others…' },
+      options: [
+        { ja: '理由とロジックを順序立てて伝える', en: 'You lay out reasons and logic in order', value: 'T' },
+        { ja: 'みんなの気持ちや背景に触れながら伝える', en: 'You speak to people\'s feelings and the context', value: 'F' } ] },
+    { tag: { ja: '評価基準', en: 'Personal standards' },
+      q:   { ja: '良い仕事の基準として、より自然なのは？', en: 'Your natural standard for "good work" is…' },
+      options: [
+        { ja: '客観的な成果と品質', en: 'Objective results and quality', value: 'T' },
+        { ja: '人や顧客にどれだけ良い影響を与えたか', en: 'How much positive impact it had on people', value: 'F' } ] }
+  ],
+  JP: [
+    { tag: { ja: '仕事の進め方', en: 'How you work' },
+      q:   { ja: 'プロジェクトを進めるときに自然なスタイルは？', en: 'Your natural style for running a project is…' },
+      options: [
+        { ja: '事前にスケジュールを立て、計画通りに進める', en: 'Plan the schedule and stick to it', value: 'J' },
+        { ja: '状況に応じて柔軟に判断し、必要に応じて変える', en: 'Stay flexible and adjust as you go', value: 'P' } ] },
+    { tag: { ja: 'デスク・予定', en: 'Desk & calendar' },
+      q:   { ja: 'あなたのデスクやカレンダーは？', en: 'Your desk and calendar are usually…' },
+      options: [
+        { ja: '整理されていて、予定もきちんと管理されている', en: 'Organized, with schedules well managed', value: 'J' },
+        { ja: 'やや雑然としていて、予定もその場で柔軟に動く', en: 'A bit messy, with plans shifting on the fly', value: 'P' } ] },
+    { tag: { ja: '締切', en: 'Deadlines' },
+      q:   { ja: '締切のあるタスクに対しては？', en: 'When you have a deadline, you tend to…' },
+      options: [
+        { ja: '早めに着手し、余裕を持って終わらせる', en: 'Start early and finish with time to spare', value: 'J' },
+        { ja: 'ギリギリの集中力で一気に仕上げるのが得意', en: 'Hit a focused sprint right before the deadline', value: 'P' } ] },
+    { tag: { ja: '休日の計画', en: 'Weekend plans' },
+      q:   { ja: '休日の予定について、より好むのは？', en: 'For your time off, you prefer…' },
+      options: [
+        { ja: '事前にしっかり計画を立てて過ごす', en: 'Planning out the day in advance', value: 'J' },
+        { ja: 'その日の気分や流れで自由に決める', en: 'Deciding by mood, in the moment', value: 'P' } ] },
+    { tag: { ja: '意思決定のタイミング', en: 'Closing decisions' },
+      q:   { ja: '物事を決めるとき、自然なのは？', en: 'When making decisions, you are inclined to…' },
+      options: [
+        { ja: '早めに決めて、次に進みたい', en: 'Decide quickly and move on', value: 'J' },
+        { ja: 'できるだけ選択肢を残して、ぎりぎりまで考えたい', en: 'Keep options open and decide later', value: 'P' } ] },
+    { tag: { ja: '変化への対応', en: 'Reacting to change' },
+      q:   { ja: '予定が急に変わったとき、自然な反応は？', en: 'When plans change suddenly, your reaction is…' },
+      options: [
+        { ja: '少しストレスを感じる、立て直しが必要', en: 'A bit of stress — you need to recalibrate', value: 'J' },
+        { ja: '楽しめる、むしろ変化は歓迎', en: 'You can enjoy it — change is welcome', value: 'P' } ] },
+    { tag: { ja: 'タスク管理', en: 'Task management' },
+      q:   { ja: 'タスクを管理する方法として、自然なのは？', en: 'Your natural way of managing tasks is…' },
+      options: [
+        { ja: 'To-Doリストやカレンダーで一覧化する', en: 'A to-do list or calendar that tracks everything', value: 'J' },
+        { ja: '頭の中で優先度を見て、状況に応じて動く', en: 'Mental prioritization, moving with the situation', value: 'P' } ] },
+    { tag: { ja: '完了か継続か', en: 'Closure vs. options' },
+      q:   { ja: '達成感を覚えるのはどんなとき？', en: 'You feel a sense of accomplishment when…' },
+      options: [
+        { ja: '物事をきちんと「完了」させたとき', en: 'You\'ve fully completed something', value: 'J' },
+        { ja: '可能性が広がり、選択肢が見えたとき', en: 'New possibilities have opened up', value: 'P' } ] },
+    { tag: { ja: 'ルール', en: 'Rules & structure' },
+      q:   { ja: 'ルールや枠組みに対して、自然な感覚は？', en: 'Toward rules and structures, you naturally feel…' },
+      options: [
+        { ja: '物事を進めやすくする、必要なもの', en: 'They help things move — useful and needed', value: 'J' },
+        { ja: '時に窮屈、状況に応じて変えたい', en: 'Sometimes constraining — adapt as needed', value: 'P' } ] },
+    { tag: { ja: '旅行のスタイル', en: 'Travel style' },
+      q:   { ja: '旅行に行くなら、より楽しめるのは？', en: 'When traveling, you enjoy more…' },
+      options: [
+        { ja: '行き先・宿・予定をしっかり決めて行く', en: 'Destinations, hotels, plans all set in advance', value: 'J' },
+        { ja: 'おおまかな計画で、現地でその都度決める', en: 'Loose plans, deciding things on the ground', value: 'P' } ] },
+    { tag: { ja: '結論の出し方', en: 'Reaching conclusions' },
+      q:   { ja: '議論の場では、あなたは…', en: 'In discussions, you usually…' },
+      options: [
+        { ja: '結論を出して前に進めたい', en: 'Want to land on a conclusion and move forward', value: 'J' },
+        { ja: 'もう少し選択肢を探りたい', en: 'Want to keep exploring options', value: 'P' } ] },
+    { tag: { ja: '生活のリズム', en: 'Daily rhythm' },
+      q:   { ja: '日々の暮らしの中で、心地よいのは？', en: 'In daily life, what feels more comfortable is…' },
+      options: [
+        { ja: '決まったルーティンと安定したリズム', en: 'Set routines and steady rhythm', value: 'J' },
+        { ja: 'その日その日で違う流れと自由さ', en: 'Different flow each day, freedom to vary', value: 'P' } ] }
+  ]
+};
+
+// ============================================================
+// 16 TYPES — bilingual
+// ============================================================
+const TYPES = {
+  INTJ: {
+    nickname: { ja: '建築家', en: 'The Architect' },
+    tagline: { ja: '戦略的に未来を設計する、独立した思考の持ち主', en: 'Strategic, independent thinker who designs the future' },
+    description: {
+      ja: '長期的なビジョンを描き、論理と分析で実現に導く戦略家。少ない情報から本質を見抜き、複雑な課題にも独自の答えを見つけ出します。自立心が強く、知的な探求を好みます。',
+      en: 'A strategist who draws long-term vision and brings it to life through logic and analysis. Sees the essence with little information, finds unique answers to complex problems. Highly independent, drawn to intellectual exploration.' },
+    strengths: {
+      ja: ['戦略的思考と長期ビジョン','独立して課題を解決できる','高い基準と知的好奇心','本質を見抜く分析力'],
+      en: ['Strategic thinking and long-term vision','Solves problems independently','High standards and intellectual curiosity','Analytical depth — sees the essence'] },
+    weaknesses: {
+      ja: ['完璧主義になりやすい','感情面の配慮が不足することがある','柔軟性を欠くことがある','自分の判断を絶対視しがち'],
+      en: ['Tends toward perfectionism','Can overlook emotional dimensions','Can lack flexibility','May treat own judgment as absolute'] },
+    careers: {
+      ja: ['戦略コンサルタント','プロダクトマネージャー','データサイエンティスト','システムアーキテクト','研究開発','事業企画'],
+      en: ['Strategy Consultant','Product Manager','Data Scientist','Systems Architect','R&D','Business Planning'] }
+  },
+  INTP: {
+    nickname: { ja: '論理学者', en: 'The Logician' },
+    tagline: { ja: '探究心旺盛な思想家、知のフロンティアを切り拓く', en: 'Curious thinker pushing the frontiers of knowledge' },
+    description: {
+      ja: '物事の仕組みを徹底的に理解したい論理派。型にはまらない発想で新しい理論やアイデアを生み出します。一人で深く考える時間を大切にし、知的な議論を好みます。',
+      en: 'A logician who wants to deeply understand how things work. Generates novel theories and ideas through unconventional thinking. Treasures deep thinking time alone, enjoys intellectual debate.' },
+    strengths: {
+      ja: ['論理的・分析的な思考','独創的なアイデア発想','客観性と知的誠実さ','複雑な概念を理解する力'],
+      en: ['Logical, analytical thinking','Original idea generation','Objectivity and intellectual honesty','Grasps complex concepts'] },
+    weaknesses: {
+      ja: ['実行や完遂が苦手なことがある','感情的な議論を避けがち','ルーチン作業を退屈に感じる','理論先行で実務が後回しに'],
+      en: ['Can struggle with execution and completion','Tends to avoid emotional discussions','Finds routine work tedious','Theory may come before practice'] },
+    careers: {
+      ja: ['研究者・アナリスト','エンジニア','ソフトウェア開発','UXリサーチャー','大学教員','戦略立案'],
+      en: ['Researcher / Analyst','Engineer','Software Developer','UX Researcher','Academic','Strategy'] }
+  },
+  ENTJ: {
+    nickname: { ja: '指揮官', en: 'The Commander' },
+    tagline: { ja: '大胆な意志と決断力で組織を動かすリーダー', en: 'Bold, decisive leader who moves the organization' },
+    description: {
+      ja: '明確なビジョンと強い実行力で組織を率いる生まれながらのリーダー。目標達成に向けて人を動かし、効率的にゴールを目指します。挑戦と成果を求め続けます。',
+      en: 'A natural leader with clear vision and strong execution. Mobilizes people toward goals and pursues outcomes efficiently. Continually seeks challenge and results.' },
+    strengths: {
+      ja: ['リーダーシップと決断力','戦略立案と実行力','長期的な目標達成志向','組織化・構造化が得意'],
+      en: ['Leadership and decisiveness','Strategy and execution','Long-term goal orientation','Strong at organizing and structuring'] },
+    weaknesses: {
+      ja: ['他者の感情を見落としがち','性急に進めて摩擦を生むことがある','権威主義的になることがある','自分の意見を押し通しすぎる'],
+      en: ['May overlook others\' feelings','Can move too fast and create friction','Can become authoritarian','May push own opinions too hard'] },
+    careers: {
+      ja: ['経営者・役員','事業責任者','営業マネジメント','プロジェクトリーダー','コンサルタント','スタートアップ創業'],
+      en: ['Executive / Officer','Business Lead','Sales Management','Project Leader','Consultant','Startup Founder'] }
+  },
+  ENTP: {
+    nickname: { ja: '討論者', en: 'The Debater' },
+    tagline: { ja: '新しい可能性を切り拓くアイデアの発信者', en: 'Idea generator who opens new possibilities' },
+    description: {
+      ja: '常に新しい視点と可能性を求めるアイデアマン。議論を通じてアイデアを磨き、革新的な解決策を生み出します。挑戦的で、変化を楽しむ柔軟さを持ちます。',
+      en: 'An idea person always seeking new perspectives and possibilities. Sharpens ideas through debate, generates innovative solutions. Bold and flexible, enjoys change.' },
+    strengths: {
+      ja: ['発想力と機転','変化への適応力','本質を突く議論力','挑戦的なマインドセット'],
+      en: ['Idea generation and wit','Adaptability to change','Penetrating debate skills','A challenger\'s mindset'] },
+    weaknesses: {
+      ja: ['細部や実行を軽視しがち','飽きっぽい一面がある','議論が長引きやすい','計画的な進行が苦手'],
+      en: ['May undervalue detail and execution','Can lose interest quickly','Debates can drag','Struggles with structured planning'] },
+    careers: {
+      ja: ['新規事業開発','起業家','マーケティング戦略','プロダクトマネージャー','ベンチャーキャピタル','クリエイティブディレクター'],
+      en: ['New Business Development','Entrepreneur','Marketing Strategy','Product Manager','Venture Capital','Creative Director'] }
+  },
+  INFJ: {
+    nickname: { ja: '提唱者', en: 'The Advocate' },
+    tagline: { ja: '静かな信念と深い洞察で人を導く理想主義者', en: 'Quietly principled idealist who guides through deep insight' },
+    description: {
+      ja: '人や物事の本質を直観的に捉え、強い理想と信念を持って行動する。表には出さないが、芯のある考えと、人への深い共感を併せ持ちます。',
+      en: 'Intuitively grasps the essence of people and situations, acts on strong ideals and conviction. Quietly principled, with deep empathy for others.' },
+    strengths: {
+      ja: ['深い洞察力と共感力','長期的なビジョン構築','誠実さと信念','一対一の信頼関係構築'],
+      en: ['Deep insight and empathy','Long-term vision building','Integrity and conviction','One-on-one trust building'] },
+    weaknesses: {
+      ja: ['完璧を求めすぎて疲弊しやすい','自分の感情を抱え込みがち','批判に敏感','理想と現実のギャップに悩みやすい'],
+      en: ['Perfectionism leading to burnout','Holds emotions inside','Sensitive to criticism','Struggles with gap between ideal and reality'] },
+    careers: {
+      ja: ['人事・組織開発','カウンセラー・コーチ','ブランド戦略','UX/サービスデザイン','編集者・ライター','教育'],
+      en: ['HR / Organizational Development','Counselor / Coach','Brand Strategy','UX / Service Design','Editor / Writer','Education'] }
+  },
+  INFP: {
+    nickname: { ja: '仲介者', en: 'The Mediator' },
+    tagline: { ja: '価値観に忠実な、想像力豊かな理想主義者', en: 'Imaginative idealist true to their values' },
+    description: {
+      ja: '自分の価値観を大切にし、その価値観に沿った世界を作りたいと願う夢想家。豊かな想像力と共感力を持ち、人の感情に深く寄り添うことができます。',
+      en: 'A dreamer guided by personal values, wanting to shape a world aligned with them. Imaginative and empathetic, deeply attuned to others\' feelings.' },
+    strengths: {
+      ja: ['価値観の明確さ','創造性と想像力','人への深い共感','誠実さと一途さ'],
+      en: ['Clear values','Creativity and imagination','Deep empathy for others','Sincerity and devotion'] },
+    weaknesses: {
+      ja: ['批判を個人攻撃と受け取りがち','実務的な詰めが苦手','理想と現実のギャップに苦しむ','決断を先延ばしにしがち'],
+      en: ['May take criticism personally','Struggles with operational detail','Pained by gap between ideal and real','Tends to postpone decisions'] },
+    careers: {
+      ja: ['コンテンツ制作・ライター','デザイナー','カウンセラー','NPO・ソーシャル領域','ブランディング','クリエイティブ職'],
+      en: ['Content / Writer','Designer','Counselor','Nonprofit / Social Impact','Branding','Creative Roles'] }
+  },
+  ENFJ: {
+    nickname: { ja: '主人公', en: 'The Protagonist' },
+    tagline: { ja: '人を信じ、人を動かすカリスマ的リーダー', en: 'Charismatic leader who believes in people and moves them' },
+    description: {
+      ja: '人の可能性を信じ、引き出すことに長けた人間関係のリーダー。情熱と共感力で周囲を巻き込み、チームを一つの方向に導いていきます。',
+      en: 'A people-centered leader skilled at believing in and drawing out potential. Passion and empathy unite a team and pull it in one direction.' },
+    strengths: {
+      ja: ['人を引きつける力','高い共感力と傾聴力','チーム作りとモチベート','価値観に基づく行動力'],
+      en: ['Magnetic presence','High empathy and listening','Team-building and motivation','Values-driven action'] },
+    weaknesses: {
+      ja: ['人の問題を背負い込みすぎる','自分のニーズを後回しにしがち','批判に動揺しやすい','理想を押し付ける傾向'],
+      en: ['Carries others\' problems','Puts own needs second','Easily shaken by criticism','May impose own ideals'] },
+    careers: {
+      ja: ['人事・組織開発','マネージャー','営業マネジメント','広報・PR','研修講師','採用担当'],
+      en: ['HR / Org Development','People Manager','Sales Management','Communications / PR','Training','Recruiting'] }
+  },
+  ENFP: {
+    nickname: { ja: '広報運動家', en: 'The Campaigner' },
+    tagline: { ja: '情熱と好奇心で、新しい可能性を広げる活動家', en: 'Energetic spirit who expands possibilities through passion and curiosity' },
+    description: {
+      ja: '人と可能性に心を動かされる、エネルギッシュなアイデア発信者。新しい出会いと挑戦を求め、周囲を明るく巻き込みながら前に進みます。',
+      en: 'An energetic idea generator moved by people and possibilities. Seeks new encounters and challenges, lighting up and rallying those around them.' },
+    strengths: {
+      ja: ['発想力と熱量','人を巻き込む力','柔軟性と適応力','ポジティブなエネルギー'],
+      en: ['Ideas and energy','Rallying people','Flexibility and adaptability','Positive energy'] },
+    weaknesses: {
+      ja: ['集中の維持が難しいことがある','細かい管理業務が苦手','感情の起伏が大きい','優先順位がブレやすい'],
+      en: ['Hard to maintain focus','Struggles with detailed admin','Emotional ups and downs','Priorities can drift'] },
+    careers: {
+      ja: ['マーケティング','イベント・プロモーション','広報・PR','コミュニティマネージャー','コンテンツプロデューサー','起業・新規事業'],
+      en: ['Marketing','Events / Promotion','Communications / PR','Community Manager','Content Producer','Entrepreneurship'] }
+  },
+  ISTJ: {
+    nickname: { ja: '管理者', en: 'The Logistician' },
+    tagline: { ja: '責任感と実直さで信頼を積み上げる、堅実な働き手', en: 'Reliable, responsible worker who builds trust through integrity' },
+    description: {
+      ja: '誠実で責任感が強く、ルールと事実を重んじる。一度引き受けたことは確実にやり遂げる信頼性の高さが最大の武器です。',
+      en: 'Earnest and highly responsible, respects rules and facts. Greatest strength is reliability — what they take on, they finish.' },
+    strengths: {
+      ja: ['責任感と信頼性','正確性と実行力','計画的・体系的な仕事','実績を積み上げる粘り強さ'],
+      en: ['Responsibility and reliability','Accuracy and execution','Systematic, planned work','Persistence that builds a track record'] },
+    weaknesses: {
+      ja: ['変化への対応が遅れがち','柔軟性に欠けることがある','感情表現が控えめ','新しい方法を試すのを避けがち'],
+      en: ['Slow to adapt to change','Can lack flexibility','Emotionally reserved','Avoids trying new methods'] },
+    careers: {
+      ja: ['経理・財務','法務・コンプライアンス','オペレーション','プロジェクト管理','品質管理','バックオフィス'],
+      en: ['Accounting / Finance','Legal / Compliance','Operations','Project Management','Quality Assurance','Back Office'] }
+  },
+  ISFJ: {
+    nickname: { ja: '擁護者', en: 'The Defender' },
+    tagline: { ja: '思いやりと丁寧さで支える、縁の下の力持ち', en: 'Caring, careful support — the quiet force behind the team' },
+    description: {
+      ja: '人をよく観察し、必要なことを察して動く献身的なサポーター。控えめながら、責任感と思いやりでチームを陰から支えます。',
+      en: 'A dedicated supporter who observes people closely and acts on what\'s needed. Quietly responsible, holds the team up from behind the scenes.' },
+    strengths: {
+      ja: ['きめ細やかな配慮','高い責任感と継続力','実務の正確さ','チームを支える献身'],
+      en: ['Fine-grained consideration','Responsibility and stamina','Operational precision','Dedicated to supporting the team'] },
+    weaknesses: {
+      ja: ['自己主張が弱くなりがち','頼まれごとを抱え込みすぎる','変化を負担に感じやすい','評価されにくいポジションに甘んじがち'],
+      en: ['Tends to under-assert','Takes on too much when asked','Feels change as a burden','Settles for under-recognized roles'] },
+    careers: {
+      ja: ['カスタマーサクセス','人事労務','アシスタント・秘書','医療・福祉','事務・総務','教育'],
+      en: ['Customer Success','HR / Labor Relations','Assistant / Secretary','Healthcare / Welfare','Admin / General Affairs','Education'] }
+  },
+  ESTJ: {
+    nickname: { ja: '幹部', en: 'The Executive' },
+    tagline: { ja: '組織と秩序を作り上げる、現実的なリーダー', en: 'Practical leader who builds organization and order' },
+    description: {
+      ja: '物事を効率的に動かすことに長けた、実務型のリーダー。明確なルールと役割で組織を機能させ、結果を着実に出していきます。',
+      en: 'A practical leader who runs things efficiently. Makes the organization function through clear rules and roles, delivers steady results.' },
+    strengths: {
+      ja: ['実行力と組織化','明確な意思決定','責任感とリーダーシップ','現実的な問題解決'],
+      en: ['Execution and organization','Clear decision-making','Responsibility and leadership','Practical problem-solving'] },
+    weaknesses: {
+      ja: ['柔軟性に欠けることがある','人の感情への配慮が薄くなりがち','伝統や前例に固執しやすい','変化を受け入れにくい'],
+      en: ['Can lack flexibility','May under-consider feelings','Holds to tradition and precedent','Slow to embrace change'] },
+    careers: {
+      ja: ['営業マネジメント','プロジェクトマネージャー','オペレーション統括','工場・店舗長','管理職全般','事業運営'],
+      en: ['Sales Management','Project Manager','Operations Lead','Plant / Store Manager','General Management','Business Operations'] }
+  },
+  ESFJ: {
+    nickname: { ja: '領事', en: 'The Consul' },
+    tagline: { ja: '人と人をつなぐ、温かいムードメーカー', en: 'Warm connector who brings people together' },
+    description: {
+      ja: '周囲との調和を大切にし、チームの空気を温かく保つことに長けた人。気配りと責任感で、人間関係と業務の両方を円滑に回します。',
+      en: 'Values harmony, skilled at keeping a warm team atmosphere. Through care and responsibility, keeps both relationships and work running smoothly.' },
+    strengths: {
+      ja: ['チームの調和を作る力','ホスピタリティと気配り','責任感とまじめさ','人間関係の構築'],
+      en: ['Building team harmony','Hospitality and care','Responsibility and earnestness','Building relationships'] },
+    weaknesses: {
+      ja: ['対立を避けすぎることがある','他者評価を気にしすぎる','批判に弱い','変化への対応に時間がかかる'],
+      en: ['May avoid conflict too much','Cares too much about others\' opinions','Vulnerable to criticism','Takes time to adapt to change'] },
+    careers: {
+      ja: ['営業・カスタマーサクセス','イベント運営','人事・採用','広報・コミュニケーション','教育・研修','受付・サービス職'],
+      en: ['Sales / Customer Success','Event Operations','HR / Recruiting','Communications','Education / Training','Reception / Service'] }
+  },
+  ISTP: {
+    nickname: { ja: '巨匠', en: 'The Virtuoso' },
+    tagline: { ja: '冷静な観察力と実践力で課題を解く、職人気質', en: 'Calm observer with hands-on skill — the craftsman' },
+    description: {
+      ja: '物事の仕組みを冷静に理解し、自分の手で動かすことを好む実践派。無駄を嫌い、必要なときに最短ルートで解決策を出します。',
+      en: 'Calmly understands how things work, prefers to do things hands-on. Dislikes waste, finds the shortest path to a solution when needed.' },
+    strengths: {
+      ja: ['冷静な分析力と判断','手を動かす実践力','緊急時の対応力','無駄のない効率性'],
+      en: ['Calm analysis and judgment','Hands-on execution','Strong in emergencies','Lean efficiency'] },
+    weaknesses: {
+      ja: ['長期的な計画が苦手','感情表現が控えめ','コミットを避けがち','チームより個で動きやすい'],
+      en: ['Struggles with long-term planning','Reserved with emotions','Avoids strong commitments','Often works solo over team'] },
+    careers: {
+      ja: ['エンジニア','データアナリスト','インフラ・運用','プロダクト開発','トラブルシューター','テクニカルサポート'],
+      en: ['Engineer','Data Analyst','Infrastructure / Ops','Product Development','Troubleshooter','Technical Support'] }
+  },
+  ISFP: {
+    nickname: { ja: '冒険家', en: 'The Adventurer' },
+    tagline: { ja: '感性で世界を捉える、自由な表現者', en: 'Sensory artist who takes in the world freely' },
+    description: {
+      ja: '自分の感性と価値観を大切にする、穏やかでアーティスティックな人。言葉より行動や創作で表現することを好み、人にも自由を尊重します。',
+      en: 'A gentle, artistic person who treasures their senses and values. Expresses through action and creation more than words, respects others\' freedom.' },
+    strengths: {
+      ja: ['豊かな感性と美的センス','柔軟性と適応力','人への共感と尊重','行動で示す誠実さ'],
+      en: ['Rich aesthetic sense','Flexibility and adaptability','Empathy and respect','Sincerity shown through action'] },
+    weaknesses: {
+      ja: ['長期的な計画が苦手','対立を避けすぎることがある','自分の意見を伝えるのが苦手','プレッシャーに弱い'],
+      en: ['Struggles with long-term planning','Avoids conflict','Finds it hard to assert opinions','Vulnerable under pressure'] },
+    careers: {
+      ja: ['デザイナー','クリエイティブ職','コンテンツ制作','写真・映像','商品開発','ホスピタリティ'],
+      en: ['Designer','Creative Roles','Content Production','Photography / Video','Product Development','Hospitality'] }
+  },
+  ESTP: {
+    nickname: { ja: '起業家', en: 'The Entrepreneur' },
+    tagline: { ja: '行動力と即興力で局面を切り開く、エネルギッシュな実践者', en: 'Energetic doer who breaks through with action and improvisation' },
+    description: {
+      ja: '考えるより先に動き、現場の中で道を切り開いていくタイプ。リスクを恐れず、変化と挑戦を楽しむエネルギッシュな実践者です。',
+      en: 'Acts before deliberating, carves a path on the ground. Unafraid of risk, energetic, enjoys change and challenge.' },
+    strengths: {
+      ja: ['行動力とスピード','臨機応変な対応','人を巻き込む力','プレッシャー下での強さ'],
+      en: ['Action and speed','Quick adaptability','Pulling people in','Strong under pressure'] },
+    weaknesses: {
+      ja: ['長期視点が抜けがち','計画より行動が先行する','飽きやすい','リスクを過小評価しがち'],
+      en: ['Long-term view can slip','Action outpaces planning','Loses interest quickly','May underestimate risk'] },
+    careers: {
+      ja: ['営業（フィールド）','事業開発','イベントプロデュース','スタートアップ','ディーラー・トレーダー','現場リーダー'],
+      en: ['Field Sales','Business Development','Event Production','Startups','Dealer / Trader','Field Leader'] }
+  },
+  ESFP: {
+    nickname: { ja: 'エンターテイナー', en: 'The Entertainer' },
+    tagline: { ja: '場を明るくする、社交的なムードメーカー', en: 'Social spirit who lights up the room' },
+    description: {
+      ja: '人と楽しさを共有することが大好きな、社交的で温かい人。場のエネルギーを高め、人との交流の中で力を発揮します。',
+      en: 'A warm, sociable person who loves sharing fun with others. Lifts the energy of the room and thrives on human connection.' },
+    strengths: {
+      ja: ['社交性とコミュニケーション力','場を明るくする力','人への共感と気配り','行動力と適応力'],
+      en: ['Sociability and communication','Brightening any room','Empathy and care','Action and adaptability'] },
+    weaknesses: {
+      ja: ['長期計画が苦手','感情に流されやすい','批判に弱い','集中力の持続が課題'],
+      en: ['Struggles with long-term planning','Easily swept by emotion','Vulnerable to criticism','Sustaining focus is tough'] },
+    careers: {
+      ja: ['営業・接客','イベント運営','タレント・MC','カスタマーサクセス','ホスピタリティ','広報・PR'],
+      en: ['Sales / Service','Event Operations','Talent / MC','Customer Success','Hospitality','Communications / PR'] }
+  }
+};
+
+// ============================================================
+// STATE
+// ============================================================
+let lang = 'ja';
+let surveyLength = 32; // default selected
+let questions = [];
+let currentQ = 0;
+let answers = [];
+
+// ============================================================
+// LANGUAGE
+// ============================================================
+function setLang(l) {
+  lang = l;
+  try { localStorage.setItem('mbti.lang', l); } catch(e) {}
+  document.documentElement.lang = l;
+  document.body.classList.toggle('lang-en', l === 'en');
+  document.getElementById('langJa').classList.toggle('active', l === 'ja');
+  document.getElementById('langEn').classList.toggle('active', l === 'en');
+  applyI18n();
+  // re-render question if survey is active
+  if (document.getElementById('survey').style.display === 'block') renderQuestion();
+  // re-render results if visible
+  if (document.getElementById('results').style.display === 'block') showResults();
+}
+
+function applyI18n() {
+  const dict = I18N[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (dict[key]) el.textContent = dict[key];
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const key = el.getAttribute('data-i18n-html');
+    if (dict[key]) el.innerHTML = dict[key];
+  });
+  document.title = lang === 'ja'
+    ? 'パーソナリティタイプ診断 (MBTI) | Salesforce Japan – Field Marketing & Operations'
+    : 'Personality Type Assessment (MBTI) | Salesforce Japan – Field Marketing & Operations';
+}
+
+// ============================================================
+// LENGTH SELECTION
+// ============================================================
+function selectLength(n) {
+  surveyLength = n;
+  document.querySelectorAll('.length-card').forEach(card => {
+    card.classList.toggle('selected', parseInt(card.dataset.length) === n);
+  });
+  try { localStorage.setItem('mbti.length', String(n)); } catch(e) {}
+}
+
+// ============================================================
+// QUESTION BUILDING
+// ============================================================
+function buildQuestions(n) {
+  // n = 16, 32, or 48. Per axis = 4, 8, or 12
+  const perAxis = n / 4;
+  const axes = ['EI', 'SN', 'TF', 'JP'];
+  const list = [];
+  axes.forEach(axis => {
+    Q_BANK[axis].slice(0, perAxis).forEach(q => {
+      list.push({ axis, ...q });
+    });
+  });
+  // interleave so axes mix during the survey (better UX)
+  const interleaved = [];
+  for (let i = 0; i < perAxis; i++) {
+    axes.forEach(axis => {
+      interleaved.push(list[axes.indexOf(axis) * perAxis + i]);
+    });
+  }
+  return interleaved;
+}
+
+// ============================================================
+// SURVEY FLOW
+// ============================================================
+function startSurvey() {
+  questions = buildQuestions(surveyLength);
+  answers = new Array(questions.length).fill(null);
+  currentQ = 0;
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('dimensions').style.display = 'none';
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('survey').style.display = 'block';
+  renderQuestion();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function renderQuestion() {
+  const q = questions[currentQ];
+  const container = document.getElementById('questionContainer');
+  const dict = I18N[lang];
+  container.innerHTML = `
+    <div class="question animate-in">
+      <span class="q-tag">${q.tag[lang]}</span>
+      <div class="q-text">Q${currentQ + 1}. ${q.q[lang]}</div>
+      <div class="options">
+        ${q.options.map((opt, i) => `
+          <label class="option">
+            <input type="radio" name="q${currentQ}" value="${opt.value}" ${answers[currentQ] === opt.value ? 'checked' : ''} onchange="onAnswer('${opt.value}')">
+            <span class="radio"></span>
+            ${opt[lang]}
+          </label>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  const pct = Math.round(((currentQ) / questions.length) * 100);
+  document.getElementById('stepCount').textContent = `Q ${currentQ + 1} / ${questions.length}`;
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressText').textContent = pct + '%';
+  document.getElementById('prevBtn').textContent = dict['btn.back'];
+  document.getElementById('prevBtn').disabled = currentQ === 0;
+  document.getElementById('nextBtn').disabled = answers[currentQ] === null;
+  document.getElementById('nextBtn').textContent = currentQ === questions.length - 1
+    ? dict['btn.viewResults']
+    : dict['btn.next'];
+}
+
+function onAnswer(value) {
+  answers[currentQ] = value;
+  document.getElementById('nextBtn').disabled = false;
+}
+
+function nextQuestion() {
+  if (answers[currentQ] === null) return;
+  if (currentQ < questions.length - 1) {
+    currentQ++;
+    renderQuestion();
+  } else {
+    showResults();
+  }
+}
+
+function prevQuestion() {
+  if (currentQ > 0) {
+    currentQ--;
+    renderQuestion();
+  }
+}
+
+// ============================================================
+// SCORING
+// ============================================================
+function calculateType() {
+  const scores = { E:0, I:0, S:0, N:0, T:0, F:0, J:0, P:0 };
+  questions.forEach((q, i) => {
+    if (answers[i]) scores[answers[i]]++;
+  });
+  const letters = [
+    scores.E >= scores.I ? 'E' : 'I',
+    scores.S >= scores.N ? 'S' : 'N',
+    scores.T >= scores.F ? 'T' : 'F',
+    scores.J >= scores.P ? 'J' : 'P'
+  ];
+  const dict = I18N[lang];
+  const axisData = [
+    { leftLabel: dict['axis.ei.left'], rightLabel: dict['axis.ei.right'],
+      leftPct: (scores.E / (scores.E + scores.I)) * 100,
+      rightPct: (scores.I / (scores.E + scores.I)) * 100 },
+    { leftLabel: dict['axis.sn.left'], rightLabel: dict['axis.sn.right'],
+      leftPct: (scores.S / (scores.S + scores.N)) * 100,
+      rightPct: (scores.N / (scores.S + scores.N)) * 100 },
+    { leftLabel: dict['axis.tf.left'], rightLabel: dict['axis.tf.right'],
+      leftPct: (scores.T / (scores.T + scores.F)) * 100,
+      rightPct: (scores.F / (scores.T + scores.F)) * 100 },
+    { leftLabel: dict['axis.jp.left'], rightLabel: dict['axis.jp.right'],
+      leftPct: (scores.J / (scores.J + scores.P)) * 100,
+      rightPct: (scores.P / (scores.J + scores.P)) * 100 }
+  ];
+  return { type: letters.join(''), axisData };
+}
+
+function showResults() {
+  document.getElementById('survey').style.display = 'none';
+  const { type, axisData } = calculateType();
+  const info = TYPES[type];
+  document.getElementById('resultType').textContent = type;
+  document.getElementById('resultNickname').textContent = info.nickname[lang];
+  document.getElementById('resultTagline').textContent = info.tagline[lang];
+  document.getElementById('resultDescription').textContent = info.description[lang];
+
+  const barsHtml = axisData.map(a => {
+    const leftActive = a.leftPct >= a.rightPct;
+    const fillSide = leftActive ? 'left-side' : 'right-side';
+    const fillPct = leftActive ? a.leftPct : a.rightPct;
+    return `
+      <div class="axis">
+        <div class="axis-labels">
+          <span class="left ${leftActive ? 'active' : ''}">${a.leftLabel} ${Math.round(a.leftPct)}%</span>
+          <span class="right ${!leftActive ? 'active' : ''}">${Math.round(a.rightPct)}% ${a.rightLabel}</span>
+        </div>
+        <div class="axis-track">
+          <div class="axis-fill ${fillSide}" style="width: ${fillPct}%"></div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('axisBars').innerHTML = barsHtml;
+
+  document.getElementById('strengthList').innerHTML = info.strengths[lang].map(s => `<li>${s}</li>`).join('');
+  document.getElementById('weaknessList').innerHTML = info.weaknesses[lang].map(s => `<li>${s}</li>`).join('');
+  document.getElementById('careerTags').innerHTML = info.careers[lang].map(c => `<span class="career-tag">${c}</span>`).join('');
+
+  document.getElementById('results').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Wire result buttons reliably
+  const printBtn = document.getElementById('printBtn');
+  const restartBtn = document.getElementById('restartBtn');
+  if (printBtn) {
+    printBtn.onclick = function(e) {
+      e.preventDefault();
+      setTimeout(function() {
+        try { window.print(); }
+        catch (err) { alert(I18N[lang]['print.fallback']); }
+      }, 100);
+    };
+  }
+  if (restartBtn) {
+    restartBtn.onclick = function(e) { e.preventDefault(); restart(); };
+  }
+}
+
+function restart() {
+  currentQ = 0;
+  answers = new Array(questions.length).fill(null);
+  document.getElementById('results').style.display = 'none';
+  document.getElementById('intro').style.display = 'block';
+  document.getElementById('dimensions').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ============================================================
+// INIT
+// ============================================================
+(function init() {
+  let savedLang = null, savedLen = null;
+  try { savedLang = localStorage.getItem('mbti.lang'); savedLen = localStorage.getItem('mbti.length'); } catch(e) {}
+  if (savedLang === 'en' || savedLang === 'ja') setLang(savedLang);
+  else setLang('ja');
+  if (savedLen && ['16','32','48'].includes(savedLen)) selectLength(parseInt(savedLen));
+  else selectLength(32);
+})();
+</script>
+</body>
+</html>
